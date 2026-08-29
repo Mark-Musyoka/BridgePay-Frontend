@@ -18,6 +18,12 @@ See [PLAN.md](./PLAN.md) for the full architecture and phased build order.
 This is a learning project, not a race to launch — no fixed deadline. Built
 incrementally in phases (see PLAN.md), picked up as time allows.
 
+## Backend readiness
+The backend ([BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend))
+is fully built and tested — all auth, account, transfer, and admin endpoints
+are live and stable. See PLAN.md section 3a for the exact request/response
+shapes to build against.
+
 ## Status: Phase 1 — Scaffolding
 - [x] Plan drafted
 - [x] Next.js scaffolding (TypeScript + Tailwind, App Router)

@@ -1,5 +1,10 @@
 # BridgePay — Frontend Plan
 
+**Backend status: all 6 phases complete and tested** — see
+[BridgePay-Backend's README](https://github.com/Mark-Musyoka/BridgePay-Backend/blob/main/README.md)
+for verified endpoint behavior. The API contract below is stable to build
+against.
+
 ## 1. What this is
 The client for BridgePay — a learning-project payments platform (PayPal-style)
 built by Abednego & Mark. This app talks to the FastAPI backend
@@ -25,7 +30,37 @@ and see their transaction history.
 - `/transfer` — send money to another user (email lookup + amount)
 - `/transactions` — full paginated transaction history
 - `/admin` — (later) view all transactions, flag suspicious ones — mirrors
-  the backend's `/admin/transactions` endpoint
+  the backend's `/admin/transactions` and `/admin/audit-logs` endpoints
+
+## 3a. Backend API contract (as built)
+Exact request/response shapes to build `lib/api.ts` against:
+
+```
+POST /auth/register
+  body: { email, password, full_name }
+  201: { id, email, full_name, is_active, created_at }
+  400: email already registered
+
+POST /auth/login
+  body (form-urlencoded): username=<email>&password=<password>
+  200: { access_token, token_type: "bearer" }
+  401: incorrect credentials
+
+GET /users/me                    (Authorization: Bearer <token>)
+GET /accounts/me                 (Authorization: Bearer <token>)
+  200: { id, balance, currency, created_at }
+
+POST /transfers                  (Authorization: Bearer <token>)
+  body: { to_email, amount, reference_note? }
+  201: { id, from_account_id, to_account_id, amount, currency, status, type, reference_note, created_at }
+  400: insufficient funds / self-transfer, 404: recipient not found
+
+GET /transactions?page=1&page_size=20   (Authorization: Bearer <token>)
+  200: { items: [...], total, page, page_size }
+```
+
+Rate limits apply (register 5/min, login 10/min, transfers 20/min, all
+IP-keyed) — handle `429` responses in the API client.
 
 ## 4. Security notes (frontend side)
 - Store the JWT in an httpOnly cookie set by a Next.js route handler, not in
