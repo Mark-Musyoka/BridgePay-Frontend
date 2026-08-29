@@ -20,7 +20,10 @@ and see their transaction history.
   small typed API client (`lib/api.ts`)
 - **Auth state:** JWT from the backend stored client-side (httpOnly cookie
   preferred over localStorage — see Security notes below), read on each
-  request via a shared fetch wrapper
+  request via a shared fetch wrapper. Store both `access_token` and
+  `refresh_token` from login/refresh; when a request gets a `401`, call
+  `POST /auth/refresh` once with the stored refresh token and retry —
+  if that also fails, treat it as a real logout (redirect to `/login`).
 - **Deploy target:** Vercel
 
 ## 3. Pages / routes (v1)
@@ -43,8 +46,18 @@ POST /auth/register
 
 POST /auth/login
   body (form-urlencoded): username=<email>&password=<password>
-  200: { access_token, token_type: "bearer" }
+  200: { access_token, refresh_token, token_type: "bearer" }
   401: incorrect credentials
+
+POST /auth/refresh
+  body: { refresh_token }
+  200: { access_token, refresh_token, token_type: "bearer" }  (both are NEW — old refresh_token is single-use)
+  401: invalid/expired, OR reuse detected (in which case ALL of that user's
+       refresh tokens are revoked server-side — every device gets logged out)
+
+POST /auth/logout
+  body: { refresh_token }
+  204: no content
 
 GET /users/me                    (Authorization: Bearer <token>)
 GET /accounts/me                 (Authorization: Bearer <token>)
