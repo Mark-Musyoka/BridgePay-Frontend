@@ -18,9 +18,9 @@ See [PLAN.md](./PLAN.md) for the full architecture and phased build order.
 This is a learning project, not a race to launch — no fixed deadline. Built
 incrementally in phases (see PLAN.md), picked up as time allows.
 
-## Status: Phase 0 — Planning
+## Status: Phase 1 — Scaffolding
 - [x] Plan drafted
-- [ ] Next.js scaffolding (Phase 1)
+- [x] Next.js scaffolding (TypeScript + Tailwind, App Router)
 - [ ] API client
 - [ ] Auth pages
 - [ ] Dashboard
@@ -28,4 +28,18 @@ incrementally in phases (see PLAN.md), picked up as time allows.
 - [ ] Transaction history
 
 ## Setup
-Not scaffolded yet — see PLAN.md Phase 1 for what's coming next.
+
+```bash
+git clone https://github.com/Mark-Musyoka/BridgePay-Frontend.git
+cd BridgePay-Frontend/frontend
+npm install
+```
+
+## Run the app
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000`.
+
