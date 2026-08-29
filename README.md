@@ -27,6 +27,14 @@ incrementally in phases (see PLAN.md), picked up as time allows.
 - [ ] Transfer flow
 - [ ] Transaction history
 
+## Related repo
+This is the frontend only. The backend API lives in a separate repo:
+[BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend)
+
+```bash
+git clone https://github.com/Mark-Musyoka/BridgePay-Backend.git
+```
+
 ## Setup
 
 ```bash
