@@ -33,7 +33,13 @@ export interface User {
 /** POST /auth/login — 200 response */
 export interface LoginResponse {
   access_token: string;
+  refresh_token: string;
   token_type: "bearer";
+}
+
+/** POST /auth/refresh — request body */
+export interface RefreshRequest {
+  refresh_token: string;
 }
 
 // ─── Accounts ────────────────────────────────

@@ -7,6 +7,7 @@ import type {
   RegisterRequest,
   LoginRequest,
   LoginResponse,
+  RefreshRequest,
   User,
   Account,
   TransferRequest,
@@ -92,7 +93,7 @@ async function request<T>(
  * Creates a new user account.
  */
 export async function register(body: RegisterRequest): Promise<User> {
-  return request<User>("/auth/register", {
+  return request<User>("/api/v1/auth/register", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -108,12 +109,35 @@ export async function login(body: LoginRequest): Promise<LoginResponse> {
   formData.append("username", body.username);
   formData.append("password", body.password);
 
-  return request<LoginResponse>("/auth/login", {
+  return request<LoginResponse>("/api/v1/auth/login", {
     method: "POST",
     body: formData.toString(),
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
+  });
+}
+
+/**
+ * POST /api/v1/auth/refresh
+ * Exchanges a refresh token for a new access + refresh token pair.
+ * The old refresh token is single-use and invalidated after this call.
+ */
+export async function refresh(body: RefreshRequest): Promise<LoginResponse> {
+  return request<LoginResponse>("/api/v1/auth/refresh", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * POST /api/v1/auth/logout
+ * Revokes the given refresh token server-side.
+ */
+export async function logout(body: RefreshRequest): Promise<void> {
+  return request<void>("/api/v1/auth/logout", {
+    method: "POST",
+    body: JSON.stringify(body),
   });
 }
 
@@ -124,7 +148,7 @@ export async function login(body: LoginRequest): Promise<LoginResponse> {
  * Returns the currently authenticated user's profile.
  */
 export async function getMe(token: string): Promise<User> {
-  return request<User>("/users/me", { method: "GET" }, token);
+  return request<User>("/api/v1/users/me", { method: "GET" }, token);
 }
 
 // ─── Account endpoints ──────────────────────
@@ -134,7 +158,7 @@ export async function getMe(token: string): Promise<User> {
  * Returns the authenticated user's account (balance, currency, etc.).
  */
 export async function getAccount(token: string): Promise<Account> {
-  return request<Account>("/accounts/me", { method: "GET" }, token);
+  return request<Account>("/api/v1/accounts/me", { method: "GET" }, token);
 }
 
 // ─── Transfer endpoints ─────────────────────
@@ -148,7 +172,7 @@ export async function createTransfer(
   token: string,
 ): Promise<Transaction> {
   return request<Transaction>(
-    "/transfers",
+    "/api/v1/transfers",
     {
       method: "POST",
       body: JSON.stringify(body),
@@ -174,7 +198,7 @@ export async function getTransactions(
   });
 
   return request<PaginatedTransactions>(
-    `/transactions?${params.toString()}`,
+    `/api/v1/transactions?${params.toString()}`,
     { method: "GET" },
     token,
   );
