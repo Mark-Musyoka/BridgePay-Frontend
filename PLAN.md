@@ -29,8 +29,15 @@ and see their transaction history.
 ## 3. Pages / routes (v1)
 - `/register` — create account
 - `/login` — log in, receive JWT
+- `/verify-email` — confirms the token from the (mocked) verification
+  email link; calls `POST /api/v1/auth/verify-email`
+- `/forgot-password` — email input, calls `POST /api/v1/auth/password-reset-request`
+- `/reset-password` — token + new password form (token comes from the
+  reset link's query param), calls `POST /api/v1/auth/password-reset-confirm`
 - `/dashboard` — balance + recent transactions
-- `/transfer` — send money to another user (email lookup + amount)
+- `/transfer` — send money to another user (email lookup + amount). Should
+  handle the `403` (unverified) case distinctly — e.g. a banner prompting
+  the user to verify their email, not a generic error toast
 - `/transactions` — full paginated transaction history
 - `/admin` — (later) view all transactions, flag suspicious ones — mirrors
   the backend's `/admin/transactions` and `/admin/audit-logs` endpoints
@@ -63,6 +70,28 @@ POST /api/v1/auth/logout
   body: { refresh_token }
   204: no content
 
+POST /api/v1/auth/verify-email
+  body: { token }
+  204: no content
+  400: invalid/expired/already-used token
+  Note: registration no longer means the account can immediately send
+  money (see the 403 case on /transfers below) — a mocked verification
+  email is queued at registration containing this token. There's no
+  "resend verification email" endpoint yet.
+
+POST /api/v1/auth/password-reset-request
+  body: { email }
+  204: no content, ALWAYS — whether or not the email is registered (this
+  is deliberate, prevents an attacker from probing which emails exist;
+  don't treat a 204 here as confirmation the email exists)
+
+POST /api/v1/auth/password-reset-confirm
+  body: { token, new_password }
+  204: no content
+  400: invalid/expired/already-used token
+  Note: this revokes ALL of the user's refresh tokens server-side — after
+  a successful reset, any other logged-in device/tab is signed out too.
+
 GET /api/v1/users/me                    (Authorization: Bearer <token>)
 GET /api/v1/accounts/me                 (Authorization: Bearer <token>)
   200: { id, balance, currency, created_at }
@@ -71,6 +100,9 @@ POST /api/v1/transfers                  (Authorization: Bearer <token>)
   body: { to_email, amount, reference_note? }
   201: { id, from_account_id, to_account_id, amount, currency, status, type, reference_note, created_at }
   400: insufficient funds / self-transfer, 404: recipient not found
+  403: sender's email isn't verified yet — surface this distinctly from
+       the 400/404 cases (e.g. "verify your email to send money" rather
+       than a generic error), since it's a different kind of blocker
 
 GET /api/v1/transactions?page=1&page_size=20   (Authorization: Bearer <token>)
   200: { items: [...], total, page, page_size }
