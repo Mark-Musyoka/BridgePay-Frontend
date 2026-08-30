@@ -22,7 +22,7 @@ and see their transaction history.
   preferred over localStorage — see Security notes below), read on each
   request via a shared fetch wrapper. Store both `access_token` and
   `refresh_token` from login/refresh; when a request gets a `401`, call
-  `POST /auth/refresh` once with the stored refresh token and retry —
+  `POST /api/v1/auth/refresh` once with the stored refresh token and retry —
   if that also fails, treat it as a real logout (redirect to `/login`).
 - **Deploy target:** Vercel
 
@@ -36,39 +36,43 @@ and see their transaction history.
   the backend's `/admin/transactions` and `/admin/audit-logs` endpoints
 
 ## 3a. Backend API contract (as built)
-Exact request/response shapes to build `lib/api.ts` against:
+Exact request/response shapes to build `lib/api.ts` against. **All paths
+below are prefixed with `/api/v1`** (e.g. base URL
+`https://bridgepay-backend.onrender.com/api/v1`) — the only unversioned
+route on the backend is the root health check (`GET /`), which the
+frontend has no reason to call directly.
 
 ```
-POST /auth/register
+POST /api/v1/auth/register
   body: { email, password, full_name }
   201: { id, email, full_name, is_active, created_at }
   400: email already registered
 
-POST /auth/login
+POST /api/v1/auth/login
   body (form-urlencoded): username=<email>&password=<password>
   200: { access_token, refresh_token, token_type: "bearer" }
   401: incorrect credentials
 
-POST /auth/refresh
+POST /api/v1/auth/refresh
   body: { refresh_token }
   200: { access_token, refresh_token, token_type: "bearer" }  (both are NEW — old refresh_token is single-use)
   401: invalid/expired, OR reuse detected (in which case ALL of that user's
        refresh tokens are revoked server-side — every device gets logged out)
 
-POST /auth/logout
+POST /api/v1/auth/logout
   body: { refresh_token }
   204: no content
 
-GET /users/me                    (Authorization: Bearer <token>)
-GET /accounts/me                 (Authorization: Bearer <token>)
+GET /api/v1/users/me                    (Authorization: Bearer <token>)
+GET /api/v1/accounts/me                 (Authorization: Bearer <token>)
   200: { id, balance, currency, created_at }
 
-POST /transfers                  (Authorization: Bearer <token>)
+POST /api/v1/transfers                  (Authorization: Bearer <token>)
   body: { to_email, amount, reference_note? }
   201: { id, from_account_id, to_account_id, amount, currency, status, type, reference_note, created_at }
   400: insufficient funds / self-transfer, 404: recipient not found
 
-GET /transactions?page=1&page_size=20   (Authorization: Bearer <token>)
+GET /api/v1/transactions?page=1&page_size=20   (Authorization: Bearer <token>)
   200: { items: [...], total, page, page_size }
 ```
 
