@@ -27,6 +27,7 @@ export interface User {
   email: string;
   full_name: string;
   is_active: boolean;
+  is_verified: boolean;
   created_at: string; // ISO 8601 datetime from the backend
 }
 
@@ -40,6 +41,22 @@ export interface LoginResponse {
 /** POST /auth/refresh — request body */
 export interface RefreshRequest {
   refresh_token: string;
+}
+
+/** POST /auth/verify-email — request body */
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+/** POST /auth/password-reset-request — request body */
+export interface PasswordResetRequest {
+  email: string;
+}
+
+/** POST /auth/password-reset-confirm — request body */
+export interface PasswordResetConfirmRequest {
+  token: string;
+  new_password: string;
 }
 
 // ─── Accounts ────────────────────────────────

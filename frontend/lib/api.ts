@@ -8,6 +8,9 @@ import type {
   LoginRequest,
   LoginResponse,
   RefreshRequest,
+  VerifyEmailRequest,
+  PasswordResetRequest,
+  PasswordResetConfirmRequest,
   User,
   Account,
   TransferRequest,
@@ -136,6 +139,47 @@ export async function refresh(body: RefreshRequest): Promise<LoginResponse> {
  */
 export async function logout(body: RefreshRequest): Promise<void> {
   return request<void>("/api/v1/auth/logout", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * POST /api/v1/auth/verify-email
+ * Confirms a user's email using the token from the (mocked) verification
+ * email. 204 on success, 400 if the token is invalid/expired/already used.
+ */
+export async function verifyEmail(body: VerifyEmailRequest): Promise<void> {
+  return request<void>("/api/v1/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * POST /api/v1/auth/password-reset-request
+ * Always returns 204, whether or not the email is registered — this is
+ * deliberate (prevents an attacker from probing which emails exist), so
+ * don't treat the response as confirmation the email exists.
+ */
+export async function requestPasswordReset(
+  body: PasswordResetRequest,
+): Promise<void> {
+  return request<void>("/api/v1/auth/password-reset-request", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * POST /api/v1/auth/password-reset-confirm
+ * On success this revokes ALL of the user's refresh tokens server-side —
+ * any other logged-in device/tab gets signed out too.
+ */
+export async function confirmPasswordReset(
+  body: PasswordResetConfirmRequest,
+): Promise<void> {
+  return request<void>("/api/v1/auth/password-reset-confirm", {
     method: "POST",
     body: JSON.stringify(body),
   });

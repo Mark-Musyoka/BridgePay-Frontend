@@ -122,12 +122,8 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <Link
-                href="/forgot-password"
-                className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-              >
-                Forgot password?
-              </Link>
+              {/* TODO: re-add once /forgot-password is built (see PLAN.md) —
+                  linking to it now would be a dead link */}
             </div>
             <input
               id="password"
