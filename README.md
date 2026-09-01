@@ -4,8 +4,8 @@ Next.js client for BridgePay, a learning-project payments platform (PayPal-style
 See [PLAN.md](./PLAN.md) for the full architecture and phased build order.
 
 ## Team
-- **Abednego Ndimu** ([@abednegoingplaces](https://github.com/abednegoingplaces)) — collaborator
 - **Mark Musyoka** ([@Mark-Musyoka](https://github.com/Mark-Musyoka)) — owner
+- **Abednego Ndimu** ([@abednegoingplaces](https://github.com/abednegoingplaces)) — collaborator
 
 ## Tech stack
 - Next.js (App Router) + TypeScript
