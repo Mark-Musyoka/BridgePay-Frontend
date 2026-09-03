@@ -7,7 +7,8 @@ against.
 
 ## 1. What this is
 The client for BridgePay — a learning-project payments platform (PayPal-style)
-built by Abednego & Mark. This app talks to the FastAPI backend
+built by Abednego, Mark & Antony (see README.md's Team section for roles).
+This app talks to the FastAPI backend
 ([BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend)) to
 let a user register, log in, view their balance, send money to another user,
 and see their transaction history.
