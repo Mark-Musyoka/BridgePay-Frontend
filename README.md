@@ -7,7 +7,7 @@ platform (auth, dashboard, transfers, transaction history). See
 ## Team
 - **Mark Musyoka** ([@Mark-Musyoka](https://github.com/Mark-Musyoka)) — owner
 - **Abednego Ndimu** ([@abednegoingplaces](https://github.com/abednegoingplaces)) — collaborator
-- **Antony** ([@Antony-debug-jpg](https://github.com/Antony-debug-jpg)) — collaborator, handling the database and frontend
+- **Franklin Tumaini** ([@Antony-debug-jpg](https://github.com/Antony-debug-jpg)) — collaborator, handling the database and frontend
 
 ## Tech stack
 - Next.js (App Router) + TypeScript
