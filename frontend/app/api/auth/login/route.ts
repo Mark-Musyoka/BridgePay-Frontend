@@ -1,27 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { login, ApiRequestError } from "@/lib/api";
+import { setAuthCookies } from "@/lib/auth";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const token = body.token;
+    const body = await request.json();
+    const email = body.email || body.username;
+    const password = body.password;
 
-    if (!token) {
-      return NextResponse.json({ error: 'Token is required' }, { status: 400 });
+    if (!email || !password) {
+      return NextResponse.json(
+        { detail: "Email and password are required" },
+        { status: 400 },
+      );
     }
 
-    const response = NextResponse.json({ success: true, message: 'Logged in successfully' });
+    const tokens = await login({ username: email, password });
+    await setAuthCookies(tokens.access_token, tokens.refresh_token);
 
-    // Set httpOnly cookie for session security
-    response.cookies.set('bridgepay_session', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
-
-    return response;
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 });
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error) {
+    if (error instanceof ApiRequestError) {
+      return NextResponse.json(
+        { detail: error.message },
+        { status: error.status },
+      );
+    }
+    return NextResponse.json(
+      { detail: "An unexpected error occurred" },
+      { status: 500 },
+    );
   }
 }

@@ -68,7 +68,7 @@ export function truncateString(str: string, length: number = 16): string {
   return `${str.slice(0, length)}...`;
 }
 
-export function truncateHash(hash: string, start: number = 6, end: number = 4): string {
+export function truncateHash(hash: string | null | undefined, start: number = 6, end: number = 4): string {
   if (!hash) return '';
   if (hash.length <= start + end) return hash;
   return `${hash.slice(0, start)}...${hash.slice(-end)}`;

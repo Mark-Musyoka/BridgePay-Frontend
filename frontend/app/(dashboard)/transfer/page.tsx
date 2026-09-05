@@ -12,7 +12,7 @@ import { FREQUENT_CONTACTS } from '@/components/dashboard/QuickSendContacts';
 
 function TransferContent() {
   const searchParams = useSearchParams();
-  const { account, token, refreshAccount } = useAuth();
+  const { account, refreshAccount } = useAuth();
   const { showToast } = useToast();
 
   const [mode, setMode] = useState<'send' | 'till' | 'paybill' | 'request'>('send');
@@ -74,7 +74,6 @@ function TransferContent() {
 
   const handleExecuteTransfer = async () => {
     setIsLoading(true);
-    const currentToken = token || 'mock_token';
 
     const targetRecipient =
       mode === 'send'
@@ -93,14 +92,11 @@ function TransferContent() {
         : referenceNote.trim() || 'P2P Transfer';
 
     try {
-      const tx = await api.createTransfer(
-        {
-          to_email: targetRecipient,
-          amount: numAmount,
-          reference_note: targetNote,
-        },
-        currentToken
-      );
+      const tx = await api.createTransfer({
+        to_email: targetRecipient,
+        amount: numAmount,
+        reference_note: targetNote,
+      });
 
       setCompletedTx(tx);
       setIsConfirmOpen(false);

@@ -1,623 +1,411 @@
-import {
-  Account,
-  AdminStats,
-  ApiErrorResponse,
-  DashboardStats,
+// ──────────────────────────────────────────────
+// BridgePay — Typed API client
+// Thin fetch wrapper for every backend endpoint.
+// ──────────────────────────────────────────────
+
+import type {
+  RegisterRequest,
   LoginRequest,
   LoginResponse,
-  PaginatedTransactionsResponse,
-  RegisterRequest,
-  TopUpRequest,
-  Transaction,
-  TransactionsQuery,
-  TransferRequest,
+  RefreshRequest,
+  VerifyEmailRequest,
+  PasswordResetRequest,
+  PasswordResetConfirmRequest,
   User,
-} from '@/types';
+  Account,
+  TransferRequest,
+  Transaction,
+  PaginatedTransactions,
+  ApiError,
+} from "@/types";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// ─── Base URL ────────────────────────────────
 
-export class ApiError extends Error {
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+// ─── Error class ─────────────────────────────
+
+/**
+ * Thrown by every API helper when the backend returns a non-2xx status.
+ * Consumers can inspect `.status` and `.message` for error handling.
+ */
+export class ApiRequestError extends Error implements ApiError {
   status: number;
-  data?: ApiErrorResponse | unknown;
 
-  constructor(status: number, message: string, data?: ApiErrorResponse | unknown) {
+  constructor(status: number, message: string) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiRequestError";
     this.status = status;
-    this.data = data;
   }
 }
 
-// In-Memory Mock Store for Offline / Demo Testing
-const MOCK_STORAGE_KEY = 'bridgepay_mock_db_v2';
+// ─── Internal helpers ────────────────────────
 
-interface MockDB {
-  users: User[];
-  accounts: Record<string, Account>;
-  transactions: Transaction[];
-}
-
-function getMockDB(): MockDB {
-  if (typeof window === 'undefined') {
-    return {
-      users: [
-        {
-          id: 'usr_demo_101',
-          email: 'zawadi@bridgepay.dev',
-          full_name: 'Zawadi Mwangi',
-          is_active: true,
-          is_admin: true,
-          created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
-        },
-      ],
-      accounts: {
-        usr_demo_101: {
-          id: 'acc_demo_882',
-          balance: '48250.00',
-          currency: 'KES',
-          created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
-        },
-      },
-      transactions: [],
-    };
-  }
-
-  const saved = localStorage.getItem(MOCK_STORAGE_KEY);
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch {
-      // ignore
-    }
-  }
-
-  const initialDB: MockDB = {
-    users: [
-      {
-        id: 'usr_demo_101',
-        email: 'zawadi@bridgepay.dev',
-        full_name: 'Zawadi Mwangi',
-        is_active: true,
-        is_admin: true,
-        created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
-      },
-      {
-        id: 'usr_demo_102',
-        email: 'wanjiku.k@bridgepay.dev',
-        full_name: 'Wanjiku Kamau',
-        is_active: true,
-        is_admin: false,
-        created_at: new Date(Date.now() - 86400000 * 25).toISOString(),
-      },
-      {
-        id: 'usr_demo_103',
-        email: 'brian.o@bridgepay.dev',
-        full_name: 'Brian Otieno',
-        is_active: true,
-        is_admin: false,
-        created_at: new Date(Date.now() - 86400000 * 20).toISOString(),
-      },
-      {
-        id: 'usr_demo_104',
-        email: 'amina.m@bridgepay.dev',
-        full_name: 'Amina Mohamed',
-        is_active: true,
-        is_admin: false,
-        created_at: new Date(Date.now() - 86400000 * 15).toISOString(),
-      },
-      {
-        id: 'usr_demo_105',
-        email: 'david.n@bridgepay.dev',
-        full_name: 'David N.',
-        is_active: true,
-        is_admin: false,
-        created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
-      },
-    ],
-    accounts: {
-      usr_demo_101: {
-        id: 'acc_demo_882',
-        balance: '48250.00',
-        currency: 'KES',
-        created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
-      },
-    },
-    transactions: [
-      {
-        id: 'tx_98762141',
-        from_account_id: 'acc_wanjiku_01',
-        to_account_id: 'acc_demo_882',
-        from_user_email: 'wanjiku.k@bridgepay.dev',
-        to_user_email: 'zawadi@bridgepay.dev',
-        amount: '4500.00',
-        currency: 'KES',
-        status: 'completed',
-        type: 'transfer_received',
-        reference_note: 'M-Pesa payment received',
-        created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-      },
-      {
-        id: 'tx_98762142',
-        from_account_id: 'acc_demo_882',
-        to_account_id: 'acc_till_342110',
-        from_user_email: 'zawadi@bridgepay.dev',
-        to_user_email: 'javahouse@till342110.ke',
-        amount: '1250.00',
-        currency: 'KES',
-        status: 'completed',
-        type: 'transfer_sent',
-        reference_note: 'Java House Nairobi • Till 342110',
-        created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-      },
-      {
-        id: 'tx_98762143',
-        from_account_id: 'acc_demo_882',
-        to_account_id: 'acc_brian_02',
-        from_user_email: 'zawadi@bridgepay.dev',
-        to_user_email: 'brian.o@bridgepay.dev',
-        amount: '15000.00',
-        currency: 'KES',
-        status: 'completed',
-        type: 'transfer_sent',
-        reference_note: 'Brian Otieno • Rent contribution',
-        created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-      },
-      {
-        id: 'tx_98762144',
-        from_account_id: 'acc_amina_03',
-        to_account_id: 'acc_demo_882',
-        from_user_email: 'amina.m@bridgepay.dev',
-        to_user_email: 'zawadi@bridgepay.dev',
-        amount: '850.00',
-        currency: 'KES',
-        status: 'completed',
-        type: 'transfer_received',
-        reference_note: 'Amina Mohamed • Split lunch bill',
-        created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-      },
-      {
-        id: 'tx_98762145',
-        from_account_id: 'acc_demo_882',
-        to_account_id: 'acc_unverified_44',
-        from_user_email: 'zawadi@bridgepay.dev',
-        to_user_email: 'suspicious.actor@unknown.net',
-        amount: '125000.00',
-        currency: 'KES',
-        status: 'flagged',
-        type: 'transfer_sent',
-        reference_note: 'Rapid cross-border remittance',
-        created_at: new Date(Date.now() - 3600000 * 8).toISOString(),
-        is_flagged: true,
-      },
-    ],
-  };
-
-  localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(initialDB));
-  return initialDB;
-}
-
-function saveMockDB(db: MockDB) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(db));
-  }
-}
-
-interface RequestOptions extends RequestInit {
-  token?: string;
-  params?: Record<string, string | number | boolean | undefined>;
-}
-
+/**
+ * Core fetch wrapper.
+ * - Attaches Authorization header when `token` is provided.
+ * - Parses JSON and throws `ApiRequestError` on non-2xx responses.
+ */
 async function request<T>(
   endpoint: string,
-  options: RequestOptions = {}
+  options: RequestInit = {},
+  token?: string,
 ): Promise<T> {
-  const { token, params, headers, ...customConfig } = options;
-
-  let url = `${API_BASE_URL}${endpoint}`;
-  if (params) {
-    const searchParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        searchParams.append(key, String(value));
-      }
-    });
-    const queryString = searchParams.toString();
-    if (queryString) {
-      url += `?${queryString}`;
-    }
-  }
-
-  const reqHeaders = new Headers(headers);
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string>),
+  };
 
   if (token) {
-    reqHeaders.set('Authorization', `Bearer ${token}`);
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
-  if (
-    !reqHeaders.has('Content-Type') &&
-    !(customConfig.body instanceof URLSearchParams) &&
-    !(customConfig.body instanceof FormData)
-  ) {
-    reqHeaders.set('Content-Type', 'application/json');
+  // Default to JSON content type for requests with a body,
+  // unless the caller already set one (e.g. form-urlencoded for login).
+  if (options.body && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
   }
 
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
 
-    const response = await fetch(url, {
-      ...customConfig,
-      headers: reqHeaders,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    let responseData: unknown;
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      responseData = await response.json().catch(() => null);
-    } else {
-      responseData = await response.text().catch(() => null);
-    }
-
-    if (!response.ok) {
-      let errorMessage = `Request failed with status ${response.status}`;
-
-      if (responseData && typeof responseData === 'object' && 'detail' in responseData) {
-        const errorObj = responseData as ApiErrorResponse;
-        if (typeof errorObj.detail === 'string') {
-          errorMessage = errorObj.detail;
-        } else if (Array.isArray(errorObj.detail)) {
-          errorMessage = errorObj.detail.map((err) => err.msg).join(', ');
-        }
-      }
-
-      throw new ApiError(response.status, errorMessage, responseData);
-    }
-
-    return responseData as T;
-  } catch (error: any) {
-    if (
-      error.name === 'AbortError' ||
-      error.name === 'TypeError' ||
-      error.message?.includes('fetch') ||
-      error.message?.includes('Failed to fetch') ||
-      error.message?.includes('NetworkError')
-    ) {
-      return handleMockFallback<T>(endpoint, options);
-    }
-
-    throw error;
+  // Handle 204 No Content (e.g. logout)
+  if (response.status === 204) {
+    return undefined as unknown as T;
   }
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    // FastAPI returns { "detail": "..." } for errors
+    const message =
+      typeof data?.detail === "string"
+        ? data.detail
+        : JSON.stringify(data?.detail ?? data);
+    throw new ApiRequestError(response.status, message);
+  }
+
+  return data as T;
 }
 
-function handleMockFallback<T>(endpoint: string, options: RequestOptions): Promise<T> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const db = getMockDB();
-      const method = (options.method || 'GET').toUpperCase();
+// ─── Auth endpoints ──────────────────────────
 
-      // POST /auth/register
-      if (endpoint === '/auth/register' && method === 'POST') {
-        const body: RegisterRequest = JSON.parse(String(options.body || '{}'));
-        const existing = db.users.find((u) => u.email.toLowerCase() === body.email.toLowerCase());
-        if (existing) {
-          return reject(new ApiError(400, 'User with this email already exists'));
-        }
-        const newUser: User = {
-          id: `usr_${Date.now()}`,
-          email: body.email,
-          full_name: body.full_name,
-          is_active: true,
-          created_at: new Date().toISOString(),
-        };
-        db.users.push(newUser);
-        db.accounts[newUser.id] = {
-          id: `acc_${Date.now()}`,
-          balance: '48250.00',
-          currency: 'KES',
-          created_at: new Date().toISOString(),
-        };
-        saveMockDB(db);
-        return resolve(newUser as unknown as T);
-      }
-
-      // POST /auth/login
-      if (endpoint === '/auth/login' && method === 'POST') {
-        let username = '';
-        if (options.body instanceof URLSearchParams) {
-          username = options.body.get('username') || '';
-        } else if (typeof options.body === 'string') {
-          const params = new URLSearchParams(options.body);
-          username = params.get('username') || JSON.parse(options.body).email || '';
-        }
-
-        const user = db.users.find((u) => u.email.toLowerCase() === username.toLowerCase()) || db.users[0];
-        const res: LoginResponse = {
-          access_token: `mock_jwt_token_${user.id}_${Date.now()}`,
-          token_type: 'bearer',
-          user,
-        };
-        return resolve(res as unknown as T);
-      }
-
-      // GET /users/me
-      if (endpoint === '/users/me') {
-        const user = db.users[0];
-        return resolve(user as unknown as T);
-      }
-
-      // GET /accounts/me
-      if (endpoint === '/accounts/me') {
-        const account = db.accounts['usr_demo_101'] || {
-          id: 'acc_demo_882',
-          balance: '48250.00',
-          currency: 'KES',
-          created_at: new Date().toISOString(),
-        };
-        return resolve(account as unknown as T);
-      }
-
-      // POST /transfers
-      if (endpoint === '/transfers' && method === 'POST') {
-        const body: TransferRequest = JSON.parse(String(options.body || '{}'));
-        const account = db.accounts['usr_demo_101'];
-        const currentBal = parseFloat(String(account?.balance || '0'));
-
-        if (body.amount <= 0) {
-          return reject(new ApiError(400, 'Transfer amount must be greater than zero'));
-        }
-        if (currentBal < body.amount) {
-          return reject(new ApiError(400, `Insufficient funds. Available balance: KES ${currentBal.toLocaleString()}`));
-        }
-
-        account.balance = (currentBal - body.amount).toFixed(2);
-
-        const newTx: Transaction = {
-          id: `tx_${Date.now()}`,
-          from_account_id: account.id,
-          to_account_id: `acc_rcpt_${Math.floor(Math.random() * 9000 + 1000)}`,
-          from_user_email: 'zawadi@bridgepay.dev',
-          to_user_email: body.to_email,
-          amount: body.amount.toFixed(2),
-          currency: account.currency || 'KES',
-          status: 'completed',
-          type: 'transfer_sent',
-          reference_note: body.reference_note || 'P2P Transfer',
-          created_at: new Date().toISOString(),
-        };
-
-        db.transactions.unshift(newTx);
-        saveMockDB(db);
-        return resolve(newTx as unknown as T);
-      }
-
-      // POST /topup
-      if (endpoint === '/topup' && method === 'POST') {
-        const body: TopUpRequest = JSON.parse(String(options.body || '{}'));
-        const account = db.accounts['usr_demo_101'];
-        const currentBal = parseFloat(String(account?.balance || '0'));
-        account.balance = (currentBal + body.amount).toFixed(2);
-
-        const newTx: Transaction = {
-          id: `tx_top_${Date.now()}`,
-          from_account_id: 'acc_mock_sandbox',
-          to_account_id: account.id,
-          from_user_email: 'pesalink@bridgepay.dev',
-          to_user_email: 'zawadi@bridgepay.dev',
-          amount: body.amount.toFixed(2),
-          currency: account.currency || 'KES',
-          status: 'completed',
-          type: 'topup',
-          reference_note: 'M-Pesa / PesaLink Top Up',
-          created_at: new Date().toISOString(),
-        };
-
-        db.transactions.unshift(newTx);
-        saveMockDB(db);
-        return resolve(account as unknown as T);
-      }
-
-      // GET /transactions
-      if (endpoint.startsWith('/transactions')) {
-        let items = [...db.transactions];
-        const params = options.params || {};
-
-        if (params.search) {
-          const s = String(params.search).toLowerCase();
-          items = items.filter(
-            (t) =>
-              t.to_user_email?.toLowerCase().includes(s) ||
-              t.from_user_email?.toLowerCase().includes(s) ||
-              t.reference_note?.toLowerCase().includes(s) ||
-              t.id.toLowerCase().includes(s)
-          );
-        }
-
-        if (params.status && params.status !== 'all') {
-          items = items.filter((t) => t.status === params.status);
-        }
-
-        if (params.type && params.type !== 'all') {
-          items = items.filter((t) => t.type === params.type);
-        }
-
-        const page = Number(params.page || 1);
-        const pageSize = Number(params.page_size || 10);
-        const total = items.length;
-        const total_pages = Math.ceil(total / pageSize) || 1;
-        const start = (page - 1) * pageSize;
-        const pagedItems = items.slice(start, start + pageSize);
-
-        const res: PaginatedTransactionsResponse = {
-          items: pagedItems,
-          total,
-          page,
-          page_size: pageSize,
-          total_pages,
-        };
-
-        return resolve(res as unknown as T);
-      }
-
-      // GET /admin/transactions
-      if (endpoint.startsWith('/admin/transactions')) {
-        const items = [...db.transactions];
-        const res: PaginatedTransactionsResponse = {
-          items,
-          total: items.length,
-          page: 1,
-          page_size: items.length,
-          total_pages: 1,
-        };
-        return resolve(res as unknown as T);
-      }
-
-      return resolve({} as unknown as T);
-    }, 150);
+/**
+ * POST /auth/register
+ * Creates a new user account.
+ */
+export async function register(body: RegisterRequest): Promise<User> {
+  return request<User>("/api/v1/auth/register", {
+    method: "POST",
+    body: JSON.stringify(body),
   });
 }
 
+/**
+ * POST /auth/login
+ * Authenticates a user and returns a JWT.
+ * Note: The backend expects form-urlencoded, NOT JSON.
+ */
+export async function login(body: LoginRequest): Promise<LoginResponse> {
+  const formData = new URLSearchParams();
+  formData.append("username", body.username);
+  formData.append("password", body.password);
+
+  return request<LoginResponse>("/api/v1/auth/login", {
+    method: "POST",
+    body: formData.toString(),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+}
+
+/**
+ * POST /api/v1/auth/refresh
+ * Exchanges a refresh token for a new access + refresh token pair.
+ * The old refresh token is single-use and invalidated after this call.
+ */
+export async function refresh(body: RefreshRequest): Promise<LoginResponse> {
+  return request<LoginResponse>("/api/v1/auth/refresh", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * POST /api/v1/auth/logout
+ * Revokes the given refresh token server-side.
+ */
+export async function logout(body: RefreshRequest): Promise<void> {
+  return request<void>("/api/v1/auth/logout", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * POST /api/v1/auth/verify-email
+ * Confirms a user's email using the token from the (mocked) verification
+ * email. 204 on success, 400 if the token is invalid/expired/already used.
+ */
+export async function verifyEmail(body: VerifyEmailRequest): Promise<void> {
+  return request<void>("/api/v1/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * POST /api/v1/auth/password-reset-request
+ * Always returns 204, whether or not the email is registered — this is
+ * deliberate (prevents an attacker from probing which emails exist), so
+ * don't treat the response as confirmation the email exists.
+ */
+export async function requestPasswordReset(
+  body: PasswordResetRequest,
+): Promise<void> {
+  return request<void>("/api/v1/auth/password-reset-request", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * POST /api/v1/auth/password-reset-confirm
+ * On success this revokes ALL of the user's refresh tokens server-side —
+ * any other logged-in device/tab gets signed out too.
+ */
+export async function confirmPasswordReset(
+  body: PasswordResetConfirmRequest,
+): Promise<void> {
+  return request<void>("/api/v1/auth/password-reset-confirm", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * POST /auth/resend-verification
+ * Issues a fresh verification token for the logged-in user (requires
+ * auth — login isn't gated on verification, so the user can already be
+ * logged in when they need this). 400 if already verified.
+ */
+export async function resendVerification(token: string): Promise<void> {
+  return request<void>("/api/v1/auth/resend-verification", { method: "POST" }, token);
+}
+
+// ─── User endpoints ──────────────────────────
+
+/**
+ * GET /users/me
+ * Returns the currently authenticated user's profile.
+ */
+export async function getMe(token: string): Promise<User> {
+  return request<User>("/api/v1/users/me", { method: "GET" }, token);
+}
+
+// ─── Account endpoints ──────────────────────
+
+/**
+ * GET /accounts/me
+ * Returns the authenticated user's account (balance, currency, etc.).
+ */
+export async function getAccount(token: string): Promise<Account> {
+  return request<Account>("/api/v1/accounts/me", { method: "GET" }, token);
+}
+
+// ─── Transfer endpoints ─────────────────────
+
+/**
+ * POST /transfers
+ * Sends money to another user by email.
+ */
+export async function createTransfer(
+  body: TransferRequest,
+  token: string,
+): Promise<Transaction> {
+  return request<Transaction>(
+    "/api/v1/transfers",
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+    },
+    token,
+  );
+}
+
+// ─── Transaction endpoints ──────────────────
+
+/**
+ * GET /transactions?page=<n>&page_size=<n>
+ * Returns a paginated list of the user's transactions.
+ */
+export async function getTransactions(
+  token: string,
+  page: number = 1,
+  pageSize: number = 20,
+): Promise<PaginatedTransactions> {
+  const params = new URLSearchParams({
+    page: String(page),
+    page_size: String(pageSize),
+  });
+
+  return request<PaginatedTransactions>(
+    `/api/v1/transactions?${params.toString()}`,
+    { method: "GET" },
+    token,
+  );
+}
+
+// ─── Admin endpoints ─────────────────────────
+// Both require an admin token — the backend returns 403 for a non-admin
+// user and 401 for no token at all.
+
+/**
+ * GET /admin/transactions
+ * All transactions across all users, optionally filtered to one user's
+ * activity via userEmail. There is no "flag a transaction" endpoint or
+ * concept on the backend (Transaction has no is_flagged field) — that's
+ * UI-only for now.
+ */
+export async function getAdminTransactions(
+  token: string,
+  page: number = 1,
+  pageSize: number = 20,
+  userEmail?: string,
+): Promise<PaginatedTransactions> {
+  const params = new URLSearchParams({
+    page: String(page),
+    page_size: String(pageSize),
+  });
+  if (userEmail) params.set("user_email", userEmail);
+
+  return request<PaginatedTransactions>(
+    `/api/v1/admin/transactions?${params.toString()}`,
+    { method: "GET" },
+    token,
+  );
+}
+
+/**
+ * GET /admin/audit-logs
+ * Login attempts, failed transfers, password resets, etc. — separate
+ * from the transaction ledger. Optionally filtered by action type
+ * (e.g. "login_failed", "transfer_failed_insufficient_funds").
+ */
+export async function getAuditLogs(
+  token: string,
+  page: number = 1,
+  pageSize: number = 20,
+  action?: string,
+): Promise<{
+  items: Array<{
+    id: string;
+    user_id: string | null;
+    action: string;
+    detail: string | null;
+    ip_address: string | null;
+    created_at: string;
+  }>;
+  total: number;
+  page: number;
+  page_size: number;
+}> {
+  const params = new URLSearchParams({
+    page: String(page),
+    page_size: String(pageSize),
+  });
+  if (action) params.set("action", action);
+
+  return request(`/api/v1/admin/audit-logs?${params.toString()}`, { method: "GET" }, token);
+}
+
+// ─── `api` namespace object ──────────────────────────────────────────
+// Used by client components (transfer, transactions, transactions/[id],
+// admin, topup pages). These call this app's OWN internal API routes
+// (/api/transactions, /api/transfers, etc.) via plain fetch — never the
+// FastAPI backend directly, and never with a token argument. This
+// matches AuthContext.tsx's own refreshUser/refreshAccount pattern
+// exactly: the httpOnly access/refresh cookies are invisible to any
+// client-side JS by design (see AuthContext.tsx's top comment and
+// PLAN.md's security notes) — the internal route handlers read the
+// cookie server-side and proxy to the real backend.
+//
+// Three methods have no real backend endpoint behind them yet — they
+// throw a clear, descriptive error instead of silently pretending to
+// succeed:
+//   - getTransactionById: backend only exposes GET /transactions (a
+//     paginated list), no single-item lookup. Implemented as a stopgap
+//     by fetching a page and finding the id client-side — genuinely
+//     real data, just an inefficient way to get it until a real
+//     GET /transactions/{id} endpoint exists.
+//   - topUpAccount: there is no deposit/funding endpoint on the backend
+//     at all yet (see BridgePay-Backend's README "Explicitly not built").
+//     Faking a successful response here would look broken anyway, since
+//     the topup page calls refreshAccount() right after, which re-fetches
+//     the REAL (unchanged) balance from the backend and would silently
+//     contradict a fake success.
+//   - flagTransaction: Transaction has no is_flagged concept on the
+//     backend at all — this was always UI-only, per the comment on
+//     getAdminTransactions above.
+async function proxyFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(path, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new ApiRequestError(res.status, body.detail ?? "Request failed");
+  }
+  if (res.status === 204) return undefined as T;
+  return res.json();
+}
+
 export const api = {
-  register(data: RegisterRequest): Promise<User> {
-    return request<User>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(data),
+  getMe: () => proxyFetch<User>("/api/me"),
+  getAccount: () => proxyFetch<Account>("/api/account"),
+
+  createTransfer: (body: TransferRequest) =>
+    proxyFetch<Transaction>("/api/transfers", { method: "POST", body: JSON.stringify(body) }),
+
+  getTransactions: (opts: { page?: number; page_size?: number } = {}) => {
+    const params = new URLSearchParams({
+      page: String(opts.page ?? 1),
+      page_size: String(opts.page_size ?? 20),
     });
+    return proxyFetch<PaginatedTransactions>(`/api/transactions?${params.toString()}`);
   },
 
-  login(data: LoginRequest | { email: string; password: string }): Promise<LoginResponse> {
-    const formData = new URLSearchParams();
-    const username = 'username' in data ? data.username : data.email;
-    formData.append('username', username);
-    formData.append('password', data.password);
-
-    return request<LoginResponse>('/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData,
+  getAdminTransactions: (opts: { page?: number; page_size?: number; user_email?: string } = {}) => {
+    const params = new URLSearchParams({
+      page: String(opts.page ?? 1),
+      page_size: String(opts.page_size ?? 20),
     });
+    if (opts.user_email) params.set("user_email", opts.user_email);
+    return proxyFetch<PaginatedTransactions>(`/api/admin/transactions?${params.toString()}`);
   },
 
-  getMe(token: string): Promise<User> {
-    return request<User>('/users/me', {
-      method: 'GET',
-      token,
-    });
+  async getTransactionById(id: string): Promise<Transaction> {
+    const { items } = await api.getTransactions({ page: 1, page_size: 100 });
+    const found = items.find((t) => t.id === id);
+    if (!found) {
+      throw new ApiRequestError(404, "Transaction not found");
+    }
+    return found;
   },
 
-  getAccount(token: string): Promise<Account> {
-    return request<Account>('/accounts/me', {
-      method: 'GET',
-      token,
-    });
+  async topUpAccount(_body: { amount: number; currency: string; payment_method: string }): Promise<never> {
+    throw new ApiRequestError(
+      501,
+      "Deposits aren't connected to a real backend yet — Stripe/M-Pesa integration is planned but not built. See BridgePay-Backend's README.",
+    );
   },
 
-  topUpAccount(data: TopUpRequest, token: string): Promise<Account> {
-    return request<Account>('/topup', {
-      method: 'POST',
-      token,
-      body: JSON.stringify(data),
-    });
-  },
-
-  createTransfer(data: TransferRequest, token: string): Promise<Transaction> {
-    return request<Transaction>('/transfers', {
-      method: 'POST',
-      token,
-      body: JSON.stringify(data),
-    });
-  },
-
-  getTransactions(
-    token: string,
-    params?: TransactionsQuery
-  ): Promise<PaginatedTransactionsResponse> {
-    return request<PaginatedTransactionsResponse>('/transactions', {
-      method: 'GET',
-      token,
-      params: {
-        page: params?.page ?? 1,
-        page_size: params?.page_size ?? 10,
-        status: params?.status,
-        type: params?.type,
-        search: params?.search,
-      },
-    });
-  },
-
-  getTransactionById(id: string, token: string): Promise<Transaction> {
-    return request<Transaction>(`/transactions/${id}`, {
-      method: 'GET',
-      token,
-    }).catch(async () => {
-      const db = getMockDB();
-      const found = db.transactions.find((t) => t.id === id);
-      if (found) return found;
-      throw new ApiError(404, 'Transaction not found');
-    });
-  },
-
-  getDashboardStats(token: string): Promise<DashboardStats> {
-    return request<DashboardStats>('/dashboard/stats', {
-      method: 'GET',
-      token,
-    }).catch(async () => {
-      const db = getMockDB();
-      const account = db.accounts['usr_demo_101'];
-      const balance = parseFloat(String(account?.balance || '48250.00'));
-
-      let sent = 0;
-      let received = 0;
-      db.transactions.forEach((t) => {
-        const amt = parseFloat(String(t.amount || 0));
-        if (t.type === 'transfer_sent') sent += amt;
-        if (t.type === 'transfer_received' || t.type === 'topup') received += amt;
-      });
-
-      return {
-        current_balance: balance,
-        currency: account?.currency || 'KES',
-        total_sent: sent,
-        total_received: received,
-        transaction_count: db.transactions.length,
-        monthly_growth_rate: 18.4,
-      };
-    });
-  },
-
-  getAdminTransactions(
-    token: string,
-    params?: TransactionsQuery
-  ): Promise<PaginatedTransactionsResponse> {
-    return request<PaginatedTransactionsResponse>('/admin/transactions', {
-      method: 'GET',
-      token,
-      params: {
-        page: params?.page ?? 1,
-        page_size: params?.page_size ?? 25,
-      },
-    });
-  },
-
-  flagTransaction(id: string, is_flagged: boolean, token: string): Promise<Transaction> {
-    return request<Transaction>(`/admin/transactions/${id}/flag`, {
-      method: 'POST',
-      token,
-      body: JSON.stringify({ is_flagged }),
-    }).catch(async () => {
-      const db = getMockDB();
-      const tx = db.transactions.find((t) => t.id === id);
-      if (tx) {
-        tx.is_flagged = is_flagged;
-        tx.status = is_flagged ? 'flagged' : 'completed';
-        saveMockDB(db);
-        return tx;
-      }
-      throw new ApiError(404, 'Transaction not found');
-    });
+  async flagTransaction(_id: string, _flagged: boolean): Promise<never> {
+    throw new ApiRequestError(
+      501,
+      "Flagging isn't supported by the backend yet — Transaction has no is_flagged field.",
+    );
   },
 };

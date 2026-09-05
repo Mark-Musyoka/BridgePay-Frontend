@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { api } from '@/lib/api';
 import { Transaction } from '@/types';
 import { BalanceCard } from '@/components/dashboard/BalanceCard';
 import { QuickActions } from '@/components/dashboard/QuickActions';
@@ -11,18 +10,19 @@ import { InsightCard } from '@/components/dashboard/InsightCard';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 
 export default function DashboardPage() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadDashboardData = async () => {
       setIsLoading(true);
-      const currentToken = token || 'mock_token';
-
       try {
-        const txRes = await api.getTransactions(currentToken, { page: 1, page_size: 5 });
-        setTransactions(txRes.items || []);
+        const res = await fetch('/api/transactions?page=1&page_size=5');
+        if (res.ok) {
+          const data = await res.json();
+          setTransactions(data.items || []);
+        }
       } catch (err) {
         console.warn('Dashboard data fetch warning:', err);
       } finally {
@@ -31,9 +31,9 @@ export default function DashboardPage() {
     };
 
     loadDashboardData();
-  }, [token]);
+  }, []);
 
-  const firstName = user?.full_name ? user.full_name.split(' ')[0] : 'Zawadi';
+  const firstName = user?.full_name ? user.full_name.split(' ')[0] : '';
 
   return (
     <div className="flex flex-col w-full space-y-5 select-none pt-2">
@@ -51,17 +51,31 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary-container/40 text-on-secondary-fixed-variant shadow-xs">
-          <span
-            className="material-symbols-outlined text-[15px] text-secondary"
-            style={{ fontVariationSettings: "'FILL' 1" }}
+        {/* Reflects the real user.is_verified from the backend — not
+            hardcoded. An unverified user can browse everything except
+            send money (POST /transfers returns 403 until verified). */}
+        {user?.is_verified ? (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary-container/40 text-on-secondary-fixed-variant shadow-xs">
+            <span
+              className="material-symbols-outlined text-[15px] text-secondary"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              verified
+            </span>
+            <span className="text-[10px] uppercase tracking-wider font-bold">
+              KES Verified
+            </span>
+          </div>
+        ) : (
+          <a
+            href="/verify-email"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 shadow-xs"
           >
-            verified
-          </span>
-          <span className="text-[10px] uppercase tracking-wider font-bold">
-            KES Verified
-          </span>
-        </div>
+            <span className="text-[10px] uppercase tracking-wider font-bold">
+              Verify email to send money
+            </span>
+          </a>
+        )}
       </div>
 
       {/* Main Balance Card with Indigo Gradient & Pattern */}

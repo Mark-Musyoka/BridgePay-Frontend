@@ -9,7 +9,6 @@ import { Transaction } from '@/types';
 import { formatCurrency, formatRelativeDate, formatDate } from '@/lib/utils';
 
 export default function TransactionsPage() {
-  const { token } = useAuth();
   const { showToast } = useToast();
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -24,25 +23,34 @@ export default function TransactionsPage() {
 
   const fetchTransactions = useCallback(async () => {
     setIsLoading(true);
-    const currentToken = token || 'mock_token';
 
     try {
-      const res = await api.getTransactions(currentToken, {
-        page,
-        page_size: pageSize,
-        search: search.trim() || undefined,
-        type: filterType !== 'all' ? filterType : undefined,
-      });
+      // NOTE: the real backend only supports page/page_size on
+      // GET /transactions — status/type/search have no server-side
+      // effect (see TransactionsQuery's doc comment in types/index.ts).
+      // Applying search/type as a client-side filter over the fetched
+      // page instead, so the controls aren't completely dead — this
+      // only filters within the current page, not across all pages.
+      const res = await api.getTransactions({ page, page_size: pageSize });
 
-      setTransactions(res.items || []);
+      let items = res.items || [];
+      if (search.trim()) {
+        const needle = search.trim().toLowerCase();
+        items = items.filter((t) => t.reference_note?.toLowerCase().includes(needle));
+      }
+      if (filterType !== 'all') {
+        items = items.filter((t) => t.type === filterType);
+      }
+
+      setTransactions(items);
       setTotal(res.total || 0);
-      setTotalPages(res.total_pages || Math.ceil((res.total || 0) / pageSize) || 1);
+      setTotalPages(Math.ceil((res.total || 0) / pageSize) || 1);
     } catch (err: any) {
       console.warn('Error fetching transactions:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [token, page, pageSize, search, filterType]);
+  }, [page, pageSize, search, filterType]);
 
   useEffect(() => {
     fetchTransactions();

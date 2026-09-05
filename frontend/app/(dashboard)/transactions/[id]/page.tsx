@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { api } from '@/lib/api';
 import { Transaction } from '@/types';
@@ -12,7 +11,6 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 export default function TransactionDetailPage() {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const { token } = useAuth();
   const { showToast } = useToast();
 
   const [tx, setTx] = useState<Transaction | null>(null);
@@ -22,9 +20,8 @@ export default function TransactionDetailPage() {
     if (!id) return;
     const fetchTx = async () => {
       setIsLoading(true);
-      const currentToken = token || 'mock_token';
       try {
-        const data = await api.getTransactionById(id, currentToken);
+        const data = await api.getTransactionById(id);
         setTx(data);
       } catch (err: any) {
         showToast('Transaction not found', 'error');
@@ -33,8 +30,9 @@ export default function TransactionDetailPage() {
       }
     };
 
+
     fetchTx();
-  }, [id, token, showToast]);
+  }, [id, showToast]);
 
   const handlePrint = () => {
     window.print();

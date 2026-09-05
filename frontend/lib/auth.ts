@@ -1,42 +1,58 @@
+import { cookies } from "next/headers";
+
+const ACCESS_TOKEN_COOKIE = "bp_access_token";
+const REFRESH_TOKEN_COOKIE = "bp_refresh_token";
+
 /**
- * Authentication and Cookie storage helpers
+ * Reads access token from server-side cookies.
  */
-
-const TOKEN_STORAGE_KEY = 'bridgepay_auth_token';
-const USER_STORAGE_KEY = 'bridgepay_user';
-
-export function getClientToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(TOKEN_STORAGE_KEY);
+export async function getAccessToken(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  return cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
 }
 
-export function setClientToken(token: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(TOKEN_STORAGE_KEY, token);
+/**
+ * Reads refresh token from server-side cookies.
+ */
+export async function getRefreshToken(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  return cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
 }
 
-export function removeClientToken(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(TOKEN_STORAGE_KEY);
+/**
+ * Sets httpOnly cookies for access and refresh tokens.
+ */
+export async function setAuthCookies(
+  accessToken: string,
+  refreshToken: string,
+): Promise<void> {
+  const cookieStore = await cookies();
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // Access token cookie (typically shorter lived or standard maxAge)
+  cookieStore.set(ACCESS_TOKEN_COOKIE, accessToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  });
+
+  // Refresh token cookie
+  cookieStore.set(REFRESH_TOKEN_COOKIE, refreshToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+  });
 }
 
-export function getStoredUser(): any | null {
-  if (typeof window === 'undefined') return null;
-  const userStr = localStorage.getItem(USER_STORAGE_KEY);
-  if (!userStr) return null;
-  try {
-    return JSON.parse(userStr);
-  } catch {
-    return null;
-  }
-}
-
-export function setStoredUser(user: any): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-}
-
-export function removeStoredUser(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(USER_STORAGE_KEY);
+/**
+ * Clears access and refresh token cookies.
+ */
+export async function clearAuthCookies(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(ACCESS_TOKEN_COOKIE);
+  cookieStore.delete(REFRESH_TOKEN_COOKIE);
 }

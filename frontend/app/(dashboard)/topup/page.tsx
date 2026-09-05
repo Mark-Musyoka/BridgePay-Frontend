@@ -8,7 +8,7 @@ import { api } from '@/lib/api';
 import { formatCurrency } from '@/lib/utils';
 
 export default function TopUpPage() {
-  const { account, token, refreshAccount } = useAuth();
+  const { account, refreshAccount } = useAuth();
   const { showToast } = useToast();
 
   const [amount, setAmount] = useState('2500');
@@ -28,17 +28,16 @@ export default function TopUpPage() {
     }
 
     setIsLoading(true);
-    const currentToken = token || 'mock_token';
 
     try {
-      await api.topUpAccount(
-        {
-          amount: numAmount,
-          currency: 'KES',
-          payment_method: method,
-        },
-        currentToken
-      );
+      // Always throws — there is no deposit/funding endpoint on the
+      // backend at all yet (Stripe/M-Pesa integration is planned, not
+      // built). See the comment on api.topUpAccount in lib/api.ts.
+      await api.topUpAccount({
+        amount: numAmount,
+        currency: 'KES',
+        payment_method: method,
+      });
 
       await refreshAccount();
       showToast(`Deposited ${formatCurrency(numAmount, 'KES')} into your wallet!`, 'success', 'Top Up Successful');

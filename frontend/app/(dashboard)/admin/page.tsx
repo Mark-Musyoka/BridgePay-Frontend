@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { api } from '@/lib/api';
 import { Transaction } from '@/types';
@@ -12,7 +11,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { formatCurrency, formatDate, truncateHash } from '@/lib/utils';
 
 export default function AdminPage() {
-  const { token } = useAuth();
   const { showToast } = useToast();
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -21,16 +19,15 @@ export default function AdminPage() {
 
   const fetchAdminData = useCallback(async () => {
     setIsLoading(true);
-    const currentToken = token || 'mock_token';
     try {
-      const res = await api.getAdminTransactions(currentToken, { page: 1, page_size: 50 });
+      const res = await api.getAdminTransactions({ page: 1, page_size: 50 });
       setTransactions(res.items || []);
     } catch (err: any) {
       console.warn('Admin fetch warning:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchAdminData();
@@ -38,16 +35,12 @@ export default function AdminPage() {
 
   const handleToggleFlag = async (id: string, currentFlagged: boolean) => {
     setFlaggingId(id);
-    const currentToken = token || 'mock_token';
     try {
-      const updated = await api.flagTransaction(id, !currentFlagged, currentToken);
-      setTransactions((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, is_flagged: !currentFlagged, status: !currentFlagged ? 'flagged' : 'completed' } : t))
-      );
-      showToast(
-        !currentFlagged ? 'Transaction flagged for fraud review' : 'Flag removed from transaction',
-        !currentFlagged ? 'warning' : 'success'
-      );
+      // Always throws — the backend has no flagging concept at all yet
+      // (see the is_flagged comment in types/index.ts). This surfaces
+      // that clearly via the catch block below rather than pretending
+      // to succeed.
+      await api.flagTransaction(id, !currentFlagged);
     } catch (err: any) {
       showToast(err.message || 'Action failed', 'error');
     } finally {

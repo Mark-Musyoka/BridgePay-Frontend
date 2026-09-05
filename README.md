@@ -1,11 +1,13 @@
 # BridgePay — Frontend
 
-Next.js client for BridgePay, a modern peer-to-peer payments platform (PayPal-style).
-See [PLAN.md](./PLAN.md) for the full architecture and phased build order.
+Next.js client for BridgePay — a learning-project PayPal-style payments
+platform (auth, dashboard, transfers, transaction history). See
+[PLAN.md](./PLAN.md) for the full architecture and phased build order.
 
 ## Team
-- **Abednego Ndimu** ([@abednegoingplaces](https://github.com/abednegoingplaces)) — collaborator
 - **Mark Musyoka** ([@Mark-Musyoka](https://github.com/Mark-Musyoka)) — owner
+- **Abednego Ndimu** ([@abednegoingplaces](https://github.com/abednegoingplaces)) — collaborator
+- **Franklin Tumaini** ([@Antony-debug-jpg](https://github.com/Antony-debug-jpg)) — collaborator, handling the database and frontend
 
 ## Tech stack
 - **Framework:** Next.js 16 (App Router) + React 19 + TypeScript
@@ -13,6 +15,16 @@ See [PLAN.md](./PLAN.md) for the full architecture and phased build order.
 - **State Management:** React Context (`AuthContext`, `ToastContext`)
 - **API Client:** Typed `fetch` wrapper with offline fallback mode (`lib/api.ts`)
 - **Backend:** Talks to [BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend) (FastAPI + Postgres)
+
+## Timeline
+This is a learning project, not a race to launch — no fixed deadline. Built
+incrementally in phases (see PLAN.md), picked up as time allows.
+
+## Backend readiness
+The backend ([BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend))
+is fully built and tested — all auth, account, transfer, and admin endpoints
+are live and stable. See PLAN.md section 3a for the exact request/response
+shapes to build against.
 
 ## Status: All Core Phases Implemented
 - [x] Plan drafted & architecture established
