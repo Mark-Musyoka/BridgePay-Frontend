@@ -13,12 +13,18 @@ platform (auth, dashboard, transfers, transaction history). See
 - **Framework:** Next.js 16 (App Router) + React 19 + TypeScript
 - **Styling:** Tailwind CSS v4 + Glassmorphism Dark Theme
 - **State Management:** React Context (`AuthContext`, `ToastContext`)
-- **API Client:** Typed `fetch` wrapper with offline fallback mode (`lib/api.ts`)
+- **API Client:** Typed `fetch` wrapper (`lib/api.ts`) calling this app's
+  own internal `/api/*` proxy routes, which read the httpOnly cookie
+  server-side and forward to the FastAPI backend — never a client-side
+  token. A few methods (`topUpAccount`, `flagTransaction`) currently
+  throw a clear error rather than pretend to work, since the backend has
+  no real endpoint behind them yet.
 - **Backend:** Talks to [BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend) (FastAPI + Postgres)
 
 ## Timeline
-This is a learning project, not a race to launch — no fixed deadline. Built
-incrementally in phases (see PLAN.md), picked up as time allows.
+Started as a learning project with no fixed deadline — now targeting a
+launch by **Friday, September 18, 2026**. See PLAN.md section 8 for the
+day-by-day task breakdown between now and then.
 
 ## Backend readiness
 The backend ([BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend))
@@ -26,18 +32,33 @@ is fully built and tested — all auth, account, transfer, and admin endpoints
 are live and stable. See PLAN.md section 3a for the exact request/response
 shapes to build against.
 
-## Status: All Core Phases Implemented
-- [x] Plan drafted & architecture established
-- [x] Next.js scaffolding (TypeScript + Tailwind, App Router)
-- [x] API client (`lib/api.ts`) with typed endpoints & mock database fallback
-- [x] Auth pages (`/login`, `/register`) + `httpOnly` route handlers
-- [x] Protected Layout Shell with responsive Sidebar, Header & live Balance
-- [x] Dashboard (`/dashboard`) with balance card, stats, & recent transactions
-- [x] Transfer flow (`/transfer`) with multi-step validation, review modal, & receipt
-- [x] Transaction history (`/transactions`, `/transactions/[id]`) with pagination, search, & CSV export
-- [x] Sandbox Top-up (`/topup`) to fund wallet balances for testing
-- [x] User Profile & Security (`/profile`)
-- [x] Admin Compliance & Suspicious Transfer Flagging (`/admin`)
+## Status
+The backend is fully built and tested (see BridgePay-Backend's README) —
+here's what the frontend actually does with it so far, and what's still
+UI-only or missing. See PLAN.md sections 5-6 for the full remaining list.
+
+**Real, wired to the backend:**
+- [x] Auth pages (`/login`, `/register`) + `httpOnly` cookie route handlers
+- [x] Protected layout shell with responsive sidebar, header & live balance
+- [x] Dashboard — balance, stats, recent transactions
+- [x] Transfer flow (`/transfer`) — multi-step, review modal, receipt
+- [x] Transaction history (`/transactions`, `/transactions/[id]`) — pagination, CSV export
+
+**UI-only — not yet wired to real endpoints:**
+- [ ] `/topup` — a sandbox mock; the backend's real `/deposits/stripe`
+  and `/deposits/mpesa` aren't called yet
+- [ ] `/profile` — a skeleton with hardcoded placeholder data; no
+  `GET/PATCH /users/me` or change-password calls yet
+- [ ] `/admin` — flagging is UI-only (the backend has no `is_flagged`
+  concept to persist it against)
+
+**Not started:**
+- [ ] Country dropdown on registration (now a required backend field)
+- [ ] Sign in with Google
+- [ ] Linked payment methods (Stripe card / M-Pesa number)
+- [ ] Real external payouts (`/payout`)
+- [ ] Notifications page + unread badge
+- [ ] Resend-verification action
 
 ## App Structure
 
@@ -53,8 +74,8 @@ frontend/
 │   │   ├── transactions/
 │   │   │   ├── page.tsx         # /transactions (Paginated table, filter, export)
 │   │   │   └── [id]/page.tsx    # /transactions/[id] (Dedicated receipt view)
-│   │   ├── topup/page.tsx       # /topup (Mock sandbox deposit)
-│   │   ├── profile/page.tsx     # /profile (User profile & security)
+│   │   ├── topup/page.tsx       # /topup (Mock sandbox deposit — not wired to real backend)
+│   │   ├── profile/page.tsx     # /profile (UI skeleton — hardcoded data, not wired yet)
 │   │   └── admin/page.tsx       # /admin (Audit log & suspicious flagger)
 │   ├── api/auth/                # Next.js Route handlers (login, logout, me)
 │   ├── page.tsx                 # Modern Landing Page
