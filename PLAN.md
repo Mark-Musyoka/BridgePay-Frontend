@@ -35,44 +35,23 @@ transaction history.
 - **Deploy target:** Vercel
 
 ## 3. Pages / routes
-- `/register` — create account. Now needs a **country dropdown**
-  (`GET /countries`, 249 entries) — required field.
-- `/login` — email/password, plus a **"Sign in with Google"** link
-  (a real page navigation to `GET /auth/google/login`, not a fetch)
-- `/auth/google/complete` — **new**. Reads `?code=` (success) or
-  `?error=` from the query string after Google redirects back through
-  the backend, calls `POST /auth/google/exchange` with the code to get
-  real tokens, then completes login the same way `/login` does
-- `/verify-email` — confirms the token from the (mocked) verification
-  email link; calls `POST /api/v1/auth/verify-email`. Should also offer
-  a "Resend email" action (`POST /api/v1/auth/resend-verification`)
-- `/forgot-password` — email input, calls `POST /api/v1/auth/password-reset-request`
-- `/reset-password` — token + new password form (token comes from the
-  reset link's query param), calls `POST /api/v1/auth/password-reset-confirm`
-- `/dashboard` — balance + recent transactions + unread notification count
-- `/transfer` — send money to another BridgePay user (email + amount).
-  Should handle the `403` (unverified) case distinctly — a banner
-  prompting email verification, not a generic error toast
-- `/payout` — **new**. Send money OUT of BridgePay entirely, to a phone
-  number (M-Pesa) or a card (Stripe). Requires the sender's email always
-  (confirmation), plus the destination-specific field. See section 3a
-  for the exact request shapes — note the Stripe path needs a card
-  **token**, not a raw card number (tokenized via Stripe.js/Elements
-  before it ever reaches our backend)
-- `/deposit` (replaces the old `/topup` sandbox mock) — **real** deposit
-  via card (Stripe Elements + PaymentIntent confirmation) or M-Pesa STK
-  Push (phone number + amount, then "check your phone" messaging)
-- `/profile` — **exists as a UI skeleton only** (hardcoded placeholder
-  data, no backend calls). Needs to actually wire up `GET /users/me`,
-  `PATCH /users/me` (changing email should show a "please re-verify"
-  notice), `POST /users/me/change-password` (current + new), and a
-  linked payment methods section (list, add Stripe card/M-Pesa number, remove)
-- `/notifications` — **new**. List with mark-as-read; the dashboard's
-  unread count should link here
-- `/transactions` — full paginated transaction history
-- `/admin` — view all transactions (`?user_email=` filter) and the full
-  audit log (`?action=` filter) — mirrors `/admin/transactions` and
-  `/admin/audit-logs`
+
+| Page | Status | What it needs to do |
+|---|---|---|
+| `/register` | Needs update | Create account. Now needs a **country dropdown** (`GET /countries`, 249 entries) — required field |
+| `/login` | Needs update | Email/password, plus a **"Sign in with Google"** link (a real page navigation to `GET /auth/google/login`, not a fetch) |
+| `/auth/google/complete` | **New** | Reads `?code=` (success) or `?error=` from the query string after Google redirects back through the backend, calls `POST /auth/google/exchange` with the code to get real tokens, then completes login the same way `/login` does |
+| `/verify-email` | Needs update | Confirms the token from the (mocked) verification email link; calls `POST /auth/verify-email`. Should also offer a "Resend email" action (`POST /auth/resend-verification`) |
+| `/forgot-password` | Not started | Email input, calls `POST /auth/password-reset-request` |
+| `/reset-password` | Not started | Token + new password form (token comes from the reset link's query param), calls `POST /auth/password-reset-confirm` |
+| `/dashboard` | Built, needs update | Balance + recent transactions — needs an added unread notification count |
+| `/transfer` | Built, needs update | Send money to another BridgePay user (email + amount). Should handle the `403` (unverified) case distinctly — a banner prompting email verification, not a generic error toast |
+| `/payout` | **New** | Send money OUT of BridgePay entirely, to a phone number (M-Pesa) or a card (Stripe). Requires the sender's email always (confirmation), plus the destination-specific field. Stripe path needs a card **token**, not a raw card number (tokenized via Stripe.js/Elements before it ever reaches our backend) — see section 3a |
+| `/deposit` | Replaces `/topup` mock | **Real** deposit via card (Stripe Elements + PaymentIntent confirmation) or M-Pesa STK Push (phone number + amount, then "check your phone" messaging) |
+| `/profile` | UI skeleton only | Hardcoded placeholder data, no backend calls yet. Needs `GET /users/me`, `PATCH /users/me` (changing email should show a "please re-verify" notice), `POST /users/me/change-password` (current + new), and a linked payment methods section (list, add Stripe card/M-Pesa number, remove) |
+| `/notifications` | **New** | List with mark-as-read; the dashboard's unread count should link here |
+| `/transactions`, `/transactions/[id]` | Built | Full paginated transaction history — no changes needed |
+| `/admin` | Built, needs correction | Views all transactions (`?user_email=` filter) and the full audit log (`?action=` filter) — the existing flag action is UI-only and should be labeled as such, since the backend has no `is_flagged` concept to persist it against |
 
 ## 3a. Backend API contract (as built)
 Exact request/response shapes to build `lib/api.ts` against. **All paths
@@ -331,31 +310,20 @@ hardcoded placeholder data, no backend calls at all yet),
 cookie helpers), `lib/utils.ts`.
 
 ## 6. Remaining work to reach feature parity with the backend
-Roughly in dependency order — later items assume earlier ones exist:
-1. **Country dropdown on `/register`** — `GET /countries`, now a
-   required field
-2. **`/auth/google/complete` page** + a "Sign in with Google" link on
-   `/login` — see section 3a for the exact handoff-code flow
-3. **Wire up `/profile` for real** — the page exists (UI skeleton only,
-   currently uses hardcoded placeholder data like `'Zawadi Mwangi'` and
-   makes no backend calls at all) but needs actual `GET /users/me` /
-   `PATCH /users/me` / `POST /users/me/change-password` integration,
-   plus the linked-payment-methods section
-4. **Payment method linking UI** — Stripe Elements card form (SetupIntent
-   flow) + M-Pesa phone number form, both under `/settings`
-5. **Real `/deposit` page** replacing the `/topup` mock — Stripe card
-   deposit (PaymentIntent + Elements) and M-Pesa STK Push, both
-   asynchronous (show a pending/waiting state, don't assume success on
-   the initial response)
-6. **`/payout` page** — send money externally via M-Pesa phone or a
-   tokenized Stripe card, always requiring the recipient's email
-7. **`/notifications` page** + an unread-count badge somewhere persistent
-   (header/dashboard)
-8. **Resend-verification action** on `/verify-email` or wherever a user
-   might be stuck unverified
-9. **Polish pass** — loading states, empty states, error boundaries,
-   responsive layout, the `403`-unverified banner on `/transfer` and
-   `/payout`
+Priority order — later items assume earlier ones exist. See the pages
+table in section 3 for what each one actually needs to do.
+
+| # | Item | Depends on |
+|---|---|---|
+| 1 | Country dropdown on `/register` | `GET /countries` |
+| 2 | `/auth/google/complete` page + "Sign in with Google" link on `/login` | — |
+| 3 | Wire up `/profile` for real (currently hardcoded placeholder data, no backend calls) | — |
+| 4 | Payment method linking UI (Stripe Elements card form, M-Pesa phone form) | Item 3 (`/profile`) |
+| 5 | Real `/deposit` page, replacing the `/topup` mock | Item 4 (a linked card is needed to deposit via Stripe) |
+| 6 | `/payout` page (M-Pesa phone or tokenized Stripe card) | Item 4 |
+| 7 | `/notifications` page + unread-count badge | — |
+| 8 | Resend-verification action on `/verify-email` | — |
+| 9 | Polish pass — loading/empty states, error boundaries, responsive layout, the `403`-unverified banner on `/transfer` and `/payout` | Items 1-8 |
 
 ## 7. Explicitly out of scope for now
 - Admin dashboard beyond a read-only list (no fraud-flagging UI — the
@@ -370,25 +338,21 @@ actually free when. Backend is done; everything left is frontend +
 credentials + deployment.
 
 **This week (through Sunday, Sept 13)**
-- *Franklin* — items 1-3 above (country dropdown, Google OAuth
-  completion page, `/settings` skeleton)
-- *Mark* — items 4-5 (payment method linking UI, real deposit page) —
-  the highest-effort, most fiddly items (Stripe Elements integration),
-  so starting them earliest
-- *Abednego* — get real Stripe (test mode) + M-Pesa (Safaricom sandbox)
-  + Google OAuth credentials set up and shared securely with the team;
-  start the Render (backend) + Vercel (frontend) deployment setup in
-  parallel so it's not a last-minute scramble
 
-**Next week (Mon Sept 14 - Fri Sept 18)**
-- *Mon-Tue* — items 6-7 (payout page, notifications) — whoever finishes
-  their "this week" items first picks these up
-- *Wed* — item 8 (resend-verification) + item 9 (polish pass) —
-  everyone, split by page
-- *Thu* — full end-to-end test pass by all three: register → verify →
-  link a card/M-Pesa number → deposit → transfer → payout → check
-  notifications/admin — using real sandbox credentials, not mocks
-- *Fri (Sept 18)* — deploy, final smoke test, launch
+| Person | Assigned items | Why |
+|---|---|---|
+| Franklin | 1-3 (country dropdown, Google OAuth completion page, `/profile` wiring) | Self-contained, lower-risk starting points |
+| Mark | 4-5 (payment method linking UI, real deposit page) | Highest-effort, most fiddly (Stripe Elements) — start earliest |
+| Abednego | Get real Stripe test-mode, M-Pesa sandbox, and Google OAuth credentials set up and shared securely; start Render + Vercel deployment setup in parallel | So deployment isn't a last-minute scramble |
+
+**Next week (Mon Sept 14 – Fri Sept 18)**
+
+| Day | Task |
+|---|---|
+| Mon–Tue | Items 6-7 (payout page, notifications) — whoever finishes their "this week" items first picks these up |
+| Wed | Item 8 (resend-verification) + item 9 (polish pass) — everyone, split by page |
+| Thu | Full end-to-end test pass by all three: register → verify → link a card/M-Pesa number → deposit → transfer → payout → check notifications/admin — using real sandbox credentials, not mocks |
+| Fri (Sept 18) | Deploy, final smoke test, launch |
 
 ## 9. Folder structure (as built)
 ```

@@ -5,21 +5,20 @@ platform (auth, dashboard, transfers, transaction history). See
 [PLAN.md](./PLAN.md) for the full architecture and phased build order.
 
 ## Team
-- **Mark Musyoka** ([@Mark-Musyoka](https://github.com/Mark-Musyoka)) — owner
-- **Abednego Ndimu** ([@abednegoingplaces](https://github.com/abednegoingplaces)) — collaborator
-- **Franklin Tumaini** ([@Antony-debug-jpg](https://github.com/Antony-debug-jpg)) — collaborator, handling the database and frontend
+| Name | GitHub | Role |
+|---|---|---|
+| Mark Musyoka | [@Mark-Musyoka](https://github.com/Mark-Musyoka) | Owner |
+| Abednego Ndimu | [@abednegoingplaces](https://github.com/abednegoingplaces) | Collaborator |
+| Franklin Tumaini | [@Antony-debug-jpg](https://github.com/Antony-debug-jpg) | Collaborator — database and frontend |
 
 ## Tech stack
-- **Framework:** Next.js 16 (App Router) + React 19 + TypeScript
-- **Styling:** Tailwind CSS v4 + Glassmorphism Dark Theme
-- **State Management:** React Context (`AuthContext`, `ToastContext`)
-- **API Client:** Typed `fetch` wrapper (`lib/api.ts`) calling this app's
-  own internal `/api/*` proxy routes, which read the httpOnly cookie
-  server-side and forward to the FastAPI backend — never a client-side
-  token. A few methods (`topUpAccount`, `flagTransaction`) currently
-  throw a clear error rather than pretend to work, since the backend has
-  no real endpoint behind them yet.
-- **Backend:** Talks to [BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend) (FastAPI + Postgres)
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 16 (App Router) + React 19 + TypeScript |
+| Styling | Tailwind CSS v4 + Glassmorphism Dark Theme |
+| State management | React Context (`AuthContext`, `ToastContext`) |
+| API client | Typed `fetch` wrapper (`lib/api.ts`) calling this app's own internal `/api/*` proxy routes, which read the httpOnly cookie server-side and forward to the FastAPI backend — never a client-side token. A few methods (`topUpAccount`, `flagTransaction`) currently throw a clear error rather than pretend to work, since the backend has no real endpoint behind them yet. |
+| Backend | [BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend) (FastAPI + Postgres) |
 
 ## Timeline
 Started as a learning project with no fixed deadline — now targeting a
@@ -34,31 +33,25 @@ shapes to build against.
 
 ## Status
 The backend is fully built and tested (see BridgePay-Backend's README) —
-here's what the frontend actually does with it so far, and what's still
-UI-only or missing. See PLAN.md sections 5-6 for the full remaining list.
+this table shows what the frontend actually does with it so far. See
+PLAN.md section 3 for the full page-by-page breakdown.
 
-**Real, wired to the backend:**
-- [x] Auth pages (`/login`, `/register`) + `httpOnly` cookie route handlers
-- [x] Protected layout shell with responsive sidebar, header & live balance
-- [x] Dashboard — balance, stats, recent transactions
-- [x] Transfer flow (`/transfer`) — multi-step, review modal, receipt
-- [x] Transaction history (`/transactions`, `/transactions/[id]`) — pagination, CSV export
-
-**UI-only — not yet wired to real endpoints:**
-- [ ] `/topup` — a sandbox mock; the backend's real `/deposits/stripe`
-  and `/deposits/mpesa` aren't called yet
-- [ ] `/profile` — a skeleton with hardcoded placeholder data; no
-  `GET/PATCH /users/me` or change-password calls yet
-- [ ] `/admin` — flagging is UI-only (the backend has no `is_flagged`
-  concept to persist it against)
-
-**Not started:**
-- [ ] Country dropdown on registration (now a required backend field)
-- [ ] Sign in with Google
-- [ ] Linked payment methods (Stripe card / M-Pesa number)
-- [ ] Real external payouts (`/payout`)
-- [ ] Notifications page + unread badge
-- [ ] Resend-verification action
+| Area | Status | Notes |
+|---|---|---|
+| Auth pages (`/login`, `/register`) | Built | Wired to `httpOnly` cookie route handlers |
+| Protected layout | Built | Responsive sidebar, header, live balance |
+| Dashboard | Built | Balance, stats, recent transactions |
+| Transfer flow (`/transfer`) | Built | Multi-step, review modal, receipt |
+| Transaction history | Built | Pagination, CSV export |
+| `/topup` | UI-only | Sandbox mock — the real `/deposits/stripe` and `/deposits/mpesa` aren't called yet |
+| `/profile` | UI-only | Hardcoded placeholder data — no `GET/PATCH /users/me` or change-password calls yet |
+| `/admin` flagging | UI-only | The backend has no `is_flagged` concept to persist it against |
+| Country dropdown | Not started | Now a required backend field on registration |
+| Sign in with Google | Not started | |
+| Linked payment methods | Not started | Stripe card / M-Pesa number |
+| Real external payouts (`/payout`) | Not started | |
+| Notifications page + unread badge | Not started | |
+| Resend-verification action | Not started | |
 
 ## App Structure
 
