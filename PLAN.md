@@ -343,7 +343,7 @@ credentials + deployment.
 |---|---|---|
 | Franklin | 1-3 (country dropdown, Google OAuth completion page, `/profile` wiring) | Self-contained, lower-risk starting points |
 | Mark | 4-5 (payment method linking UI, real deposit page) | Highest-effort, most fiddly (Stripe Elements) — start earliest |
-| Abednego | Get real Stripe test-mode, M-Pesa sandbox, and Google OAuth credentials set up and shared securely; start Render + Vercel deployment setup in parallel | So deployment isn't a last-minute scramble |
+| Abednego | ~~Get real Stripe test-mode, M-Pesa sandbox, and Google OAuth credentials set up~~ **done** (configured locally) — sharing securely with the team and starting Render + Vercel deployment setup are still in progress | So deployment isn't a last-minute scramble |
 
 **Next week (Mon Sept 14 – Fri Sept 18)**
 
