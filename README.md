@@ -1,6 +1,6 @@
 # BridgePay — Frontend
 
-Next.js client for BridgePay — a learning-project PayPal-style payments
+Next.js client for BridgePay — a PayPal-style payments
 platform (auth, dashboard, transfers, transaction history). See
 [PLAN.md](./PLAN.md) for the full architecture and phased build order.
 
