@@ -3,8 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 
+type ActionId = 'send' | 'request' | 'till' | 'paybill';
+
 interface QuickActionsProps {
-  onSelectAction?: (action: 'send' | 'request' | 'till' | 'paybill') => void;
+  onSelectAction?: (action: ActionId) => void;
 }
 
 export function QuickActions({ onSelectAction }: QuickActionsProps) {
@@ -45,7 +47,7 @@ export function QuickActions({ onSelectAction }: QuickActionsProps) {
         <Link
           key={action.id}
           href={action.href}
-          onClick={() => onSelectAction?.(action.id as any)}
+          onClick={() => onSelectAction?.(action.id as ActionId)}
           className="flex flex-col items-center gap-2 group active:scale-95 transition-transform select-none"
         >
           <div
