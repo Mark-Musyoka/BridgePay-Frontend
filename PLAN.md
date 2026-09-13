@@ -420,57 +420,56 @@ credentials + deployment.
 
 ## 9. Folder structure (as built)
 ```
-frontend/
-  src/
-    app/
-      (auth)/
-        login/page.tsx               # empty stub
-        register/page.tsx            # empty stub
-        verify-email/page.tsx        # empty stub
-        forgot-password/page.tsx     # empty stub
-        reset-password/page.tsx      # empty stub
-        auth/google/complete/page.tsx  # empty stub
-      (dashboard)/
-        dashboard/page.tsx           # empty stub
-        transfer/page.tsx            # empty stub
-        deposit/page.tsx             # empty stub — replaces topup/, not yet removed
-        payout/page.tsx              # empty stub
-        notifications/page.tsx       # empty stub
-        transactions/page.tsx        # empty stub
-        transactions/[id]/page.tsx   # empty stub
-        admin/page.tsx                # empty stub
-        topup/page.tsx                 # empty stub — superseded by deposit/, kept until nav is updated
-        profile/page.tsx                # empty stub
-      api/
-        auth/
-          login/route.ts      # sets httpOnly cookies after login
-          logout/route.ts
-        me/route.ts
-        account/route.ts
+src/
+  app/
+    (auth)/
+      login/page.tsx               # empty stub
+      register/page.tsx            # empty stub
+      verify-email/page.tsx        # empty stub
+      forgot-password/page.tsx     # empty stub
+      reset-password/page.tsx      # empty stub
+      auth/google/complete/page.tsx  # empty stub
+    (dashboard)/
+      dashboard/page.tsx           # empty stub
+      transfer/page.tsx            # empty stub
+      deposit/page.tsx             # empty stub — replaces topup/, not yet removed
+      payout/page.tsx              # empty stub
+      notifications/page.tsx       # empty stub
+      transactions/page.tsx        # empty stub
+      transactions/[id]/page.tsx   # empty stub
+      admin/page.tsx                # empty stub
+      topup/page.tsx                 # empty stub — superseded by deposit/, kept until nav is updated
+      profile/page.tsx                # empty stub
+    api/
+      auth/
+        login/route.ts      # sets httpOnly cookies after login
+        logout/route.ts
+      me/route.ts
+      account/route.ts
+      transactions/route.ts
+      transfers/route.ts
+      admin/
         transactions/route.ts
-        transfers/route.ts
-        admin/
-          transactions/route.ts
-          audit-logs/route.ts
-      layout.tsx
-      page.tsx                 # landing / redirect
-    components/
-      ui/                       # Button, Input, Card, Badge, Modal, Skeleton, Icons
-      layout/                   # Sidebar, Header, BottomNav
-      *.tsx                     # feature components, flat — BalanceCard, StatCards,
-                                 # RecentTransactions, TransactionTable, TransactionFilters, etc.
-    hooks/
-      useAuth.ts                # re-exports context/AuthContext's hook
-      useToast.ts                # re-exports context/ToastContext's hook
-    context/
-      AuthContext.tsx           # login/logout/register/demoLogin, user+account state
-      ToastContext.tsx
-    lib/
-      api.ts                    # typed backend API client + `api` namespace object
-      auth.ts                   # httpOnly cookie helpers
-      utils.ts
-    types/
-      index.ts                  # shared TS types matching backend schemas
-  .env.local.example
-  PLAN.md
+        audit-logs/route.ts
+    layout.tsx
+    page.tsx                 # landing / redirect
+  components/
+    ui/                       # Button, Input, Card, Badge, Modal, Skeleton, Icons
+    layout/                   # Sidebar, Header, BottomNav
+    *.tsx                     # feature components, flat — BalanceCard, StatCards,
+                               # RecentTransactions, TransactionTable, TransactionFilters, etc.
+  hooks/
+    useAuth.ts                # re-exports context/AuthContext's hook
+    useToast.ts                # re-exports context/ToastContext's hook
+  context/
+    AuthContext.tsx           # login/logout/register/demoLogin, user+account state
+    ToastContext.tsx
+  lib/
+    api.ts                    # typed backend API client + `api` namespace object
+    auth.ts                   # httpOnly cookie helpers
+    utils.ts
+  types/
+    index.ts                  # shared TS types matching backend schemas
+.env.local.example
+PLAN.md
 ```
