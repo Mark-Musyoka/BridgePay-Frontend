@@ -35,6 +35,9 @@ transaction history.
   `POST /api/v1/auth/refresh` once with the stored refresh token and retry —
   if that also fails, treat it as a real logout (redirect to `/login`).
 - **Deploy target:** Vercel
+- **CI:** `.github/workflows/ci.yml` (build + lint on every push/PR). See
+  README.md's CI & Deployment section for the two ways to actually
+  deploy to Vercel and why to only use one.
 
 ## 3. Pages / routes
 
@@ -420,6 +423,10 @@ credentials + deployment.
 
 ## 9. Folder structure (as built)
 ```
+.github/
+  workflows/
+    ci.yml      # build + lint on every push/PR
+    deploy.yml  # optional Vercel deploy, gated on ci.yml passing — see README
 src/
   app/
     (auth)/

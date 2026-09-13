@@ -115,3 +115,16 @@ npm run dev
 ```
 
 Visit `http://localhost:3000`.
+
+## CI & Deployment
+`.github/workflows/ci.yml` runs `npm run build` and `npm run lint` on
+every push to `main` and every PR.
+
+For deploying to Vercel, pick one path, not both:
+- **Vercel's own GitHub integration** — "Import Project" on vercel.com,
+  point it at this repo. Zero setup here, deploys on every push
+  automatically.
+- **`.github/workflows/deploy.yml`** — a GitHub Actions workflow that
+  only deploys after CI passes (via a `workflow_run` trigger), rather
+  than deploying unconditionally. See the comment at the top of that
+  file for the three secrets it needs.
