@@ -27,31 +27,37 @@ day-by-day task breakdown between now and then.
 
 ## Backend readiness
 The backend ([BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend))
-is fully built and tested — all auth, account, transfer, and admin endpoints
-are live and stable. See PLAN.md section 3a for the exact request/response
-shapes to build against.
+is fully built and tested — all auth, account, transfer, deposit, payout
+(M-Pesa, Stripe, Airtel Money, bank account), notification, admin, and
+Google OAuth endpoints are live and stable, including multi-currency
+conversion on deposits/payouts. See PLAN.md section 3a for the exact
+request/response shapes to build against.
 
 ## Status
-The backend is fully built and tested (see BridgePay-Backend's README) —
-this table shows what the frontend actually does with it so far. See
-PLAN.md section 3 for the full page-by-page breakdown.
+Every page's existing implementation has been cleared (see PLAN.md
+section 5) so each one gets rebuilt against the backend's current, full
+surface (which now includes Airtel Money
+and bank-account payouts, neither of which existed when the pages
+below were first built) rather than patched incrementally. This table
+tracks the rebuild; see PLAN.md section 3 for the full page-by-page
+spec each one needs to satisfy.
 
-| Area | Status | Notes |
-|---|---|---|
-| Auth pages (`/login`, `/register`) | Built | Wired to `httpOnly` cookie route handlers |
-| Protected layout | Built | Responsive sidebar, header, live balance |
-| Dashboard | Built | Balance, stats, recent transactions |
-| Transfer flow (`/transfer`) | Built | Multi-step, review modal, receipt |
-| Transaction history | Built | Pagination, CSV export |
-| `/topup` | UI-only | Sandbox mock — the real `/deposits/stripe` and `/deposits/mpesa` aren't called yet |
-| `/profile` | UI-only | Hardcoded placeholder data — no `GET/PATCH /users/me` or change-password calls yet |
-| `/admin` flagging | UI-only | The backend has no `is_flagged` concept to persist it against |
-| Country dropdown | Not started | Now a required backend field on registration |
-| Sign in with Google | Not started | |
-| Linked payment methods | Not started | Stripe card / M-Pesa number |
-| Real external payouts (`/payout`) | Not started | |
-| Notifications page + unread badge | Not started | |
-| Resend-verification action | Not started | |
+| Page | Status |
+|---|---|
+| `/login` | Not started |
+| `/register` | Not started |
+| `/verify-email` | Not started |
+| `/forgot-password` | Not started |
+| `/reset-password` | Not started |
+| `/auth/google/complete` | Not started |
+| `/dashboard` | Not started |
+| `/transfer` | Not started |
+| `/deposit` | Not started |
+| `/payout` | Not started |
+| `/profile` | Not started |
+| `/notifications` | Not started |
+| `/transactions`, `/transactions/[id]` | Not started |
+| `/admin` | Not started |
 
 ## App Structure
 
@@ -59,19 +65,25 @@ PLAN.md section 3 for the full page-by-page breakdown.
 frontend/
 ├── app/
 │   ├── (auth)/                  # Isolated auth card layout
-│   │   ├── login/page.tsx       # /login (Email, Password, 1-Click Demo)
-│   │   └── register/page.tsx    # /register (Full name, Email, Password)
+│   │   ├── login/page.tsx       # /login
+│   │   ├── register/page.tsx    # /register
+│   │   ├── verify-email/page.tsx        # /verify-email
+│   │   ├── forgot-password/page.tsx     # /forgot-password
+│   │   ├── reset-password/page.tsx      # /reset-password
+│   │   └── auth/google/complete/page.tsx  # /auth/google/complete
 │   ├── (dashboard)/             # Authenticated workspace shell
-│   │   ├── dashboard/page.tsx   # /dashboard (Balance card, quick actions, stats)
-│   │   ├── transfer/page.tsx    # /transfer (Send money flow & receipt)
+│   │   ├── dashboard/page.tsx   # /dashboard
+│   │   ├── transfer/page.tsx    # /transfer
+│   │   ├── deposit/page.tsx     # /deposit (Stripe card, M-Pesa, Airtel Money)
+│   │   ├── payout/page.tsx      # /payout (M-Pesa, Stripe card, bank account, Airtel Money)
+│   │   ├── notifications/page.tsx  # /notifications
 │   │   ├── transactions/
-│   │   │   ├── page.tsx         # /transactions (Paginated table, filter, export)
-│   │   │   └── [id]/page.tsx    # /transactions/[id] (Dedicated receipt view)
-│   │   ├── topup/page.tsx       # /topup (Mock sandbox deposit — not wired to real backend)
-│   │   ├── profile/page.tsx     # /profile (UI skeleton — hardcoded data, not wired yet)
-│   │   └── admin/page.tsx       # /admin (Audit log & suspicious flagger)
-│   ├── api/auth/                # Next.js Route handlers (login, logout, me)
-│   ├── page.tsx                 # Modern Landing Page
+│   │   │   ├── page.tsx         # /transactions
+│   │   │   └── [id]/page.tsx    # /transactions/[id]
+│   │   ├── profile/page.tsx     # /profile
+│   │   └── admin/page.tsx       # /admin
+│   ├── api/                     # Next.js Route handlers (proxy to the backend)
+│   ├── page.tsx                 # Landing page
 │   ├── loading.tsx              # Global loading suspense
 │   ├── error.tsx                # Error boundary
 │   └── not-found.tsx            # Custom 404 page
