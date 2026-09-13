@@ -1,13 +1,14 @@
 # BridgePay — Frontend Plan
 
 **Backend status: fully complete** — auth, wallets, transfers, real
-Stripe+M-Pesa payment methods/deposits/real external payouts,
-notifications, settings, admin, and Google OAuth are all built and
-tested. See
+Stripe+M-Pesa+Airtel Money payment methods/deposits, real external
+payouts (M-Pesa, Stripe card, Stripe bank account, Airtel Money),
+multi-currency conversion, notifications, settings, admin, and Google
+OAuth are all built and tested. See
 [BridgePay-Backend's README](https://github.com/Mark-Musyoka/BridgePay-Backend/blob/main/README.md)
 for verified endpoint behavior. **Targeting a launch by Friday,
-September 18, 2026** — the frontend is being rebuilt/extended to cover
-everything the backend now supports (see section 8 for the plan).
+September 18, 2026** — the frontend is being rebuilt from scratch to
+cover everything the backend now supports (see section 6 for the plan).
 
 ## 1. What this is
 The client for BridgePay — a payments platform (PayPal-style) built by
@@ -16,8 +17,9 @@ This app talks to the FastAPI backend
 ([BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend))
 to let a user register (with Google or email/password), verify their
 email, manage their profile and linked payment methods, deposit real
-money via card or M-Pesa, send money to other BridgePay users or pay out
-externally to a phone/card, see notifications, and view their
+money via card, M-Pesa, or Airtel Money, send money to other BridgePay
+users or pay out externally to a phone (M-Pesa/Airtel Money), card, or
+bank account, see notifications, and view their
 transaction history.
 
 ## 2. Stack
@@ -38,20 +40,20 @@ transaction history.
 
 | Page | Status | What it needs to do |
 |---|---|---|
-| `/register` | Needs update | Create account. Now needs a **country dropdown** (`GET /countries`, 249 entries) — required field |
-| `/login` | Needs update | Email/password, plus a **"Sign in with Google"** link (a real page navigation to `GET /auth/google/login`, not a fetch) |
-| `/auth/google/complete` | **New** | Reads `?code=` (success) or `?error=` from the query string after Google redirects back through the backend, calls `POST /auth/google/exchange` with the code to get real tokens, then completes login the same way `/login` does |
-| `/verify-email` | Needs update | Confirms the token from the (mocked) verification email link; calls `POST /auth/verify-email`. Should also offer a "Resend email" action (`POST /auth/resend-verification`) |
+| `/register` | Not started | Create account. Now needs a **country dropdown** (`GET /countries`, 249 entries) — required field |
+| `/login` | Not started | Email/password, plus a **"Sign in with Google"** link (a real page navigation to `GET /auth/google/login`, not a fetch) |
+| `/auth/google/complete` | Not started | Reads `?code=` (success) or `?error=` from the query string after Google redirects back through the backend, calls `POST /auth/google/exchange` with the code to get real tokens, then completes login the same way `/login` does |
+| `/verify-email` | Not started | Confirms the token from the (mocked) verification email link; calls `POST /auth/verify-email`. Should also offer a "Resend email" action (`POST /auth/resend-verification`) |
 | `/forgot-password` | Not started | Email input, calls `POST /auth/password-reset-request` |
 | `/reset-password` | Not started | Token + new password form (token comes from the reset link's query param), calls `POST /auth/password-reset-confirm` |
-| `/dashboard` | Built, needs update | Balance + recent transactions — needs an added unread notification count |
-| `/transfer` | Built, needs update | Send money to another BridgePay user (email + amount). Should handle the `403` (unverified) case distinctly — a banner prompting email verification, not a generic error toast |
-| `/payout` | **New** | Send money OUT of BridgePay entirely, to a phone number (M-Pesa) or a card (Stripe). Requires the sender's email always (confirmation), plus the destination-specific field. Stripe path needs a card **token**, not a raw card number (tokenized via Stripe.js/Elements before it ever reaches our backend) — see section 3a |
-| `/deposit` | Replaces `/topup` mock | **Real** deposit via card (Stripe Elements + PaymentIntent confirmation) or M-Pesa STK Push (phone number + amount, then "check your phone" messaging) |
-| `/profile` | UI skeleton only | Hardcoded placeholder data, no backend calls yet. Needs `GET /users/me`, `PATCH /users/me` (changing email should show a "please re-verify" notice), `POST /users/me/change-password` (current + new), and a linked payment methods section (list, add Stripe card/M-Pesa number, remove) |
-| `/notifications` | **New** | List with mark-as-read; the dashboard's unread count should link here |
-| `/transactions`, `/transactions/[id]` | Built | Full paginated transaction history — no changes needed |
-| `/admin` | Built, needs correction | Views all transactions (`?user_email=` filter) and the full audit log (`?action=` filter) — the existing flag action is UI-only and should be labeled as such, since the backend has no `is_flagged` concept to persist it against |
+| `/dashboard` | Not started | Balance + recent transactions — needs an added unread notification count |
+| `/transfer` | Not started | Send money to another BridgePay user (email + amount). Should handle the `403` (unverified) case distinctly — a banner prompting email verification, not a generic error toast |
+| `/payout` | Not started | Send money OUT of BridgePay entirely, to a phone number (M-Pesa or Airtel Money), a card (Stripe), or a bank account (Stripe, Kenyan local or international). Requires the sender's email always (confirmation), plus a destination picker with the destination-specific fields. Stripe card path needs a card **token**; the bank-account path needs a Stripe bank-account **token** — never raw numbers (tokenized via Stripe.js/Elements before it ever reaches our backend). See section 3a. When the response includes `exchange_rate`/`converted_amount` (non-null), show both the amount the user typed and what was actually deducted in the account's currency |
+| `/deposit` | Not started | Real deposit via card (Stripe Elements + PaymentIntent confirmation), M-Pesa STK Push, or Airtel Money Collections (phone number + amount, then "check your phone" messaging for both mobile-money providers). Same `exchange_rate`/`converted_amount` display note as `/payout` above |
+| `/profile` | Not started | Needs `GET /users/me`, `PATCH /users/me` (changing email should show a "please re-verify" notice), `POST /users/me/change-password` (current + new), and a linked payment methods section (list, add Stripe card/M-Pesa number, remove) |
+| `/notifications` | Not started | List with mark-as-read; the dashboard's unread count should link here |
+| `/transactions`, `/transactions/[id]` | Not started | Full paginated transaction history |
+| `/admin` | Not started | Views all transactions (`?user_email=` filter) and the full audit log (`?action=` filter) — no fraud-flagging UI, since the backend has no `is_flagged` concept to persist it against |
 
 ## 3a. Backend API contract (as built)
 Exact request/response shapes to build `lib/api.ts` against. **All paths
@@ -230,9 +232,24 @@ POST /deposits/mpesa              (Authorization: Bearer <token>)
   422: invalid phone number
   502: the STK push request itself failed (gateway/network issue)
 
+POST /deposits/airtel             (Authorization: Bearer <token>)
+  body: { phone_number, amount, idempotency_key? }
+  200: { deposit_id, message: "Payment request sent — check your phone
+        to approve via Airtel Money" }
+       <- same asynchronous shape as M-Pesa above — confirmed via
+       webhook, not this response. Same "check your phone" UI pattern.
+  422: invalid phone number
+  502: the Collections request itself failed (gateway/network issue)
+
 GET /deposits?page=1&page_size=20  (Authorization: Bearer <token>)
-  200: { items: [{ id, provider, status: "pending"|"completed"|"failed",
-          amount, currency, failure_reason, created_at, completed_at }], total, page, page_size }
+  200: { items: [{ id, provider: "stripe"|"mpesa"|"airtel",
+          status: "pending"|"completed"|"failed", amount, currency,
+          exchange_rate, converted_amount, failure_reason, created_at,
+          completed_at }], total, page, page_size }
+  exchange_rate/converted_amount are null unless the deposit's currency
+  differed from the account's own currency (KES by default) — when
+  non-null, converted_amount is what was actually credited, not `amount`
+  (what the user typed/sent). Show both when present.
   Use this (or notifications) to show deposit status updates, since
   both deposit endpoints return before the money has actually arrived.
 
@@ -262,8 +279,39 @@ POST /payouts/stripe-card         (Authorization: Bearer <verified user's token>
   403: sender's email isn't verified
   502: Stripe payout failed — balance auto-reversed, same as M-Pesa above
 
+POST /payouts/bank-account        (Authorization: Bearer <verified user's token>)
+  body: { bank_account_token, country, recipient_email, amount, currency? (default "usd"), idempotency_key? }
+  bank_account_token: a Stripe bank account token (btok_...) from
+  tokenizing the RECIPIENT's bank details via Stripe.js — never send a
+  raw account number, IBAN, bank code, or SWIFT/BIC to this endpoint.
+  Stripe.js's tokenization form already handles the field differences
+  between a Kenyan local account (account number + bank code) and an
+  international one (IBAN + SWIFT/BIC) — build two Stripe.js Element
+  configurations (or one that adapts) based on the `country` the user
+  picks, but this backend never sees those raw fields either way.
+  country: ISO 3166-1 alpha-2 (e.g. "KE", "US", "GB") — validated
+  server-side against the same list GET /countries returns.
+  201: same shape as the M-Pesa payout above, provider: "stripe"
+  400: insufficient funds
+  403: sender's email isn't verified
+  422: invalid country code
+  502: Stripe payout failed — balance auto-reversed, same as M-Pesa above
+
+POST /payouts/airtel              (Authorization: Bearer <verified user's token>)
+  body: { phone_number, recipient_email, amount, idempotency_key? }
+  201: same shape as the M-Pesa payout above, provider: "airtel"
+  400: insufficient funds
+  403: sender's email isn't verified
+  422: invalid phone number
+  502: gateway request failed — balance auto-reversed, same as M-Pesa above
+
 GET /payouts?page=1&page_size=20  (Authorization: Bearer <token>)
-  200: same shape as GET /deposits, provider-appropriate fields
+  200: same shape as GET /deposits (including exchange_rate/
+       converted_amount — see that note above), provider-appropriate
+       fields. provider is one of "mpesa"|"stripe"|"airtel" — a bank
+       payout and a card payout are both provider: "stripe"; tell them
+       apart by destination_reference's prefix (tok_... vs btok_...) if
+       you need to distinguish them in the UI
 
 --- Notifications ---
 
@@ -300,39 +348,55 @@ GET /admin/audit-logs?page=1&page_size=20&action=          (admin only)
   This isn't optional hardening, it's how the backend's endpoints are
   actually shaped — they only accept `pm_...`/`tok_...` ids.
 
-## 5. Current state (as of this rebuild/extension push)
-Already built (Stitch UI branch, merged): `(auth)/login` + `(auth)/register`
-(integrated with `AuthContext`), `/dashboard`, `/transfer`, `/transactions`
-+ `/transactions/[id]`, `/admin`, `/topup` (a **sandbox mock** — not
-wired to a real deposit endpoint), `/profile` (a **UI skeleton only** —
-hardcoded placeholder data, no backend calls at all yet),
-`AuthContext`/`ToastContext`, `lib/api.ts`, `lib/auth.ts` (httpOnly
-cookie helpers), `lib/utils.ts`.
+## 5. Current state (as of this rebuild)
+Every page previously built on the Stitch UI branch — `(auth)/login`,
+`(auth)/register`, `/dashboard`, `/transfer`, `/transactions` +
+`/transactions/[id]`, `/admin`, `/topup`, `/profile` — has had its page
+content cleared (each is now an empty stub component) so it can be
+rebuilt against the backend's current, full surface rather than
+patched incrementally. Folders/stub files now also exist for every
+page that didn't have one yet: `/verify-email`, `/forgot-password`,
+`/reset-password`, `/auth/google/complete`, `/deposit`, `/payout`,
+`/notifications`. `/topup`'s folder is left in place (also emptied)
+alongside the new `/deposit` — removing it and updating the sidebar's
+nav link is part of the `/deposit` rebuild itself, not done here.
 
-## 6. Remaining work to reach feature parity with the backend
+Untouched, since none of it is page content: `AuthContext`/`ToastContext`,
+`lib/api.ts`, `lib/auth.ts` (httpOnly cookie helpers), `lib/utils.ts`,
+`components/`, and the Next.js route handlers under `app/api/`.
+
+## 6. Remaining work
 Priority order — later items assume earlier ones exist. See the pages
-table in section 3 for what each one actually needs to do.
+table in section 3 for what each one actually needs to do; section 3a
+for the exact request/response shapes, including the newer Airtel
+Money and bank-account payout endpoints.
 
 | # | Item | Depends on |
 |---|---|---|
 | 1 | Country dropdown on `/register` | `GET /countries` |
 | 2 | `/auth/google/complete` page + "Sign in with Google" link on `/login` | — |
-| 3 | Wire up `/profile` for real (currently hardcoded placeholder data, no backend calls) | — |
-| 4 | Payment method linking UI (Stripe Elements card form, M-Pesa phone form) | Item 3 (`/profile`) |
-| 5 | Real `/deposit` page, replacing the `/topup` mock | Item 4 (a linked card is needed to deposit via Stripe) |
-| 6 | `/payout` page (M-Pesa phone or tokenized Stripe card) | Item 4 |
-| 7 | `/notifications` page + unread-count badge | — |
-| 8 | Resend-verification action on `/verify-email` | — |
-| 9 | Polish pass — loading/empty states, error boundaries, responsive layout, the `403`-unverified banner on `/transfer` and `/payout` | Items 1-8 |
+| 3 | `/verify-email` (+ resend action), `/forgot-password`, `/reset-password` | — |
+| 4 | `/profile`, including the linked payment methods section | — |
+| 5 | Payment method linking UI (Stripe Elements card form, M-Pesa phone form) | Item 4 |
+| 6 | `/deposit` — Stripe card, M-Pesa, and Airtel Money, replacing `/topup` | Item 5 (a linked card helps but isn't strictly required for M-Pesa/Airtel) |
+| 7 | `/payout` — M-Pesa, Stripe card, bank account, and Airtel Money | Item 5 |
+| 8 | `/notifications` page + unread-count badge on `/dashboard` | — |
+| 9 | `/dashboard`, `/transfer`, `/transactions` + `/transactions/[id]`, `/admin` | — |
+| 10 | Polish pass — loading/empty states, error boundaries, responsive layout, the `403`-unverified banner on `/transfer` and `/payout`, sidebar nav updated to point at `/deposit` instead of `/topup` and to include `/payout`/`/notifications` | Items 1-9 |
 
 ## 7. Explicitly out of scope for now
 - Admin dashboard beyond a read-only list (no fraud-flagging UI — the
   backend has no `is_flagged` concept to flag against, see
   BridgePay-Backend's README Phase 9)
 - Mobile app — web only for now
-- Multi-currency display/conversion (matches the backend's scoping)
 
 ## 8. Path to launch — task division (target: Friday, September 18, 2026)
+**Note:** this split was written assuming the partial progress described
+in the old section 5 (since replaced — see above). With every page now
+reset to an empty stub, the "this week" assignments below no longer
+match reality and need re-splitting by whoever's actually picking up
+each item; left as-is here rather than guessing a new division.
+
 A suggested split, not a rigid assignment — adjust based on who's
 actually free when. Backend is done; everything left is frontend +
 credentials + deployment.
@@ -359,16 +423,23 @@ credentials + deployment.
 frontend/
   app/
     (auth)/
-      login/page.tsx
-      register/page.tsx
+      login/page.tsx               # empty stub
+      register/page.tsx            # empty stub
+      verify-email/page.tsx        # empty stub
+      forgot-password/page.tsx     # empty stub
+      reset-password/page.tsx      # empty stub
+      auth/google/complete/page.tsx  # empty stub
     (dashboard)/
-      dashboard/page.tsx
-      transfer/page.tsx
-      transactions/page.tsx
-      transactions/[id]/page.tsx
-      admin/page.tsx
-      topup/page.tsx        # sandbox mock — being replaced by a real /deposit page
-      profile/page.tsx      # UI skeleton only — needs real backend wiring
+      dashboard/page.tsx           # empty stub
+      transfer/page.tsx            # empty stub
+      deposit/page.tsx             # empty stub — replaces topup/, not yet removed
+      payout/page.tsx              # empty stub
+      notifications/page.tsx       # empty stub
+      transactions/page.tsx        # empty stub
+      transactions/[id]/page.tsx   # empty stub
+      admin/page.tsx                # empty stub
+      topup/page.tsx                 # empty stub — superseded by deposit/, kept until nav is updated
+      profile/page.tsx                # empty stub
     api/
       auth/
         login/route.ts      # sets httpOnly cookies after login
