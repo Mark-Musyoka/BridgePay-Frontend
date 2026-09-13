@@ -62,42 +62,40 @@ spec each one needs to satisfy.
 ## App Structure
 
 ```
-frontend/
-└── src/
-    ├── app/
-    │   ├── (auth)/                  # Isolated auth card layout
-    │   │   ├── login/page.tsx       # /login
-    │   │   ├── register/page.tsx    # /register
-    │   │   ├── verify-email/page.tsx        # /verify-email
-    │   │   ├── forgot-password/page.tsx     # /forgot-password
-    │   │   ├── reset-password/page.tsx      # /reset-password
-    │   │   └── auth/google/complete/page.tsx  # /auth/google/complete
-    │   ├── (dashboard)/             # Authenticated workspace shell
-    │   │   ├── dashboard/page.tsx   # /dashboard
-    │   │   ├── transfer/page.tsx    # /transfer
-    │   │   ├── deposit/page.tsx     # /deposit (Stripe card, M-Pesa, Airtel Money)
-    │   │   ├── payout/page.tsx      # /payout (M-Pesa, Stripe card, bank account, Airtel Money)
-    │   │   ├── notifications/page.tsx  # /notifications
-    │   │   ├── transactions/
-    │   │   │   ├── page.tsx         # /transactions
-    │   │   │   └── [id]/page.tsx    # /transactions/[id]
-    │   │   ├── profile/page.tsx     # /profile
-    │   │   └── admin/page.tsx       # /admin
-    │   ├── api/                     # Next.js Route handlers (proxy to the backend)
-    │   ├── page.tsx                 # Landing page
-    │   ├── loading.tsx              # Global loading suspense
-    │   ├── error.tsx                # Error boundary
-    │   └── not-found.tsx            # Custom 404 page
-    ├── components/
-    │   ├── ui/                      # Button, Input, Card, Badge, Modal, Skeleton, Icons
-    │   ├── layout/                  # Sidebar, Header, BottomNav
-    │   └── *.tsx                    # Feature components, flat (BalanceCard, StatCards,
-    │                                 # RecentTransactions, TransactionTable, TransactionFilters, etc.)
-    ├── hooks/                        # useAuth, useToast
-    ├── context/                      # AuthContext, ToastContext (hooks/ re-exports these)
-    ├── lib/                          # api.ts, auth.ts, utils.ts
-    └── types/                        # TypeScript interfaces
-```
+src/
+├── app/
+│   ├── (auth)/                  # Isolated auth card layout
+│   │   ├── login/page.tsx       # /login
+│   │   ├── register/page.tsx    # /register
+│   │   ├── verify-email/page.tsx        # /verify-email
+│   │   ├── forgot-password/page.tsx     # /forgot-password
+│   │   ├── reset-password/page.tsx      # /reset-password
+│   │   └── auth/google/complete/page.tsx  # /auth/google/complete
+│   ├── (dashboard)/             # Authenticated workspace shell
+│   │   ├── dashboard/page.tsx   # /dashboard
+│   │   ├── transfer/page.tsx    # /transfer
+│   │   ├── deposit/page.tsx     # /deposit (Stripe card, M-Pesa, Airtel Money)
+│   │   ├── payout/page.tsx      # /payout (M-Pesa, Stripe card, bank account, Airtel Money)
+│   │   ├── notifications/page.tsx  # /notifications
+│   │   ├── transactions/
+│   │   │   ├── page.tsx         # /transactions
+│   │   │   └── [id]/page.tsx    # /transactions/[id]
+│   │   ├── profile/page.tsx     # /profile
+│   │   └── admin/page.tsx       # /admin
+│   ├── api/                     # Next.js Route handlers (proxy to the backend)
+│   ├── page.tsx                 # Landing page
+│   ├── loading.tsx              # Global loading suspense
+│   ├── error.tsx                # Error boundary
+│   └── not-found.tsx            # Custom 404 page
+├── components/
+│   ├── ui/                      # Button, Input, Card, Badge, Modal, Skeleton, Icons
+│   ├── layout/                  # Sidebar, Header, BottomNav
+│   └── *.tsx                    # Feature components, flat (BalanceCard, StatCards,
+│                                 # RecentTransactions, TransactionTable, TransactionFilters, etc.)
+├── hooks/                        # useAuth, useToast
+├── context/                      # AuthContext, ToastContext (hooks/ re-exports these)
+├── lib/                          # api.ts, auth.ts, utils.ts
+└── types/                        # TypeScript interfaces
 ```
 
 ## Related repo
@@ -111,7 +109,7 @@ git clone https://github.com/Mark-Musyoka/BridgePay-Backend.git
 ## Setup & Running Locally
 
 ```bash
-cd BridgePay-Frontend/frontend
+cd BridgePay-Frontend
 npm install
 npm run dev
 ```
