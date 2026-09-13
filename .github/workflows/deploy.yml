@@ -1,0 +1,45 @@
+name: Deploy to Vercel
+
+# Only used if you're NOT using Vercel's own GitHub integration (the
+# "Import Project" flow on vercel.com, which auto-deploys on push with
+# zero setup here). This workflow exists for the alternative: gating
+# production deploys behind CI actually passing first, via a
+# workflow_run trigger rather than deploying unconditionally on every
+# push to main. Don't enable both at once — Vercel's native integration
+# and this workflow would each try to deploy the same push, which is
+# redundant at best and a source of confusing double-deploys at worst.
+#
+# Setup (only if you want this path): in the repo's Settings > Secrets
+# and variables > Actions, add VERCEL_TOKEN (vercel.com/account/tokens),
+# VERCEL_ORG_ID and VERCEL_PROJECT_ID (both printed by running
+# `vercel link` once locally in this project, which creates a
+# .vercel/project.json — copy the two IDs from there, then delete that
+# file rather than committing it).
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
