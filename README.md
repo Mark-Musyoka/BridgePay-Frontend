@@ -98,12 +98,15 @@ src/
 └── types/                        # TypeScript interfaces
 ```
 
-## Related repo
-This is the frontend only. The backend API lives in a separate repo:
-[BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend)
+## Related repos
+This is the app only — login, dashboard, transfers, deposits/payouts,
+admin. Two other repos:
+- [BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend) — the FastAPI backend
+- [BridgePay-Web](https://github.com/Mark-Musyoka/BridgePay-Web) — the marketing/introduction site on BridgePay's main domain; this app is intended to live on a subdomain alongside it
 
 ```bash
 git clone https://github.com/Mark-Musyoka/BridgePay-Backend.git
+git clone https://github.com/Mark-Musyoka/BridgePay-Web.git
 ```
 
 ## Setup & Running Locally

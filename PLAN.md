@@ -403,22 +403,21 @@ etc.) rather than through theme-aware tokens, so a real toggle needs a
 pass to move those onto CSS variables / a theme provider first — it's
 a genuine feature, not a quick switch to bolt on.
 
-**Separate marketing domain — a recorded decision, not scheduled
-yet.** The intent is for BridgePay's main domain to be a standalone
-introduction/marketing site (what BridgePay is, for a visitor who's
-never heard of it), with everything in this repo — login through
-admin — living under a subdomain (e.g. `app.bridgepay.<tld>`) as the
-actual product. That's a separate site/repo, to be designed later; the
-Landing/Welcome screen above (item 10) is a lighter-weight stand-in
-inside this same app in the meantime, not the final marketing site.
+**Separate marketing domain — now exists.**
+[BridgePay-Web](https://github.com/Mark-Musyoka/BridgePay-Web) is
+BridgePay's main-domain introduction site — everything in this repo
+(login through admin) is intended to live under a subdomain (e.g.
+`app.bridgepay.<tld>`) as the actual product. Item 10's Landing/Welcome
+screen is still worth having as a lighter-weight fallback inside this
+app, but the real "introduce BridgePay" job now belongs to that repo.
 
 ## 7. Explicitly out of scope for now
 - Admin dashboard beyond a read-only list (no fraud-flagging UI — the
   backend has no `is_flagged` concept to flag against, see
   BridgePay-Backend's README Phase 9)
 - Mobile app — web only for now
-- The standalone marketing domain described above — recorded as a
-  future decision, not part of this repo's build
+- The standalone marketing domain described above — lives in
+  BridgePay-Web, not part of this repo's build
 
 ## 8. Path to launch — task division (target: Friday, September 18, 2026)
 **Note:** this split was written assuming the partial progress described
