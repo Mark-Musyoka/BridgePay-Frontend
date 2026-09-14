@@ -12,7 +12,7 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-surface-container">
+    <header className="fixed top-0 left-0 right-0 md:left-64 z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-surface-container">
       <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between">
         {/* Logo & Brand */}
         <Link href="/dashboard" className="flex items-center gap-2 group">

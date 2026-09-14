@@ -6,47 +6,15 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Icons } from '@/components/ui/Icons';
 import { cn } from '@/lib/utils';
+import { MAIN_NAV_ITEMS, isNavItemActive } from '@/lib/navigation';
 
+/** Tablet/desktop only (md and up) — BottomNav takes over on mobile. */
 export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
-  const navItems = [
-    {
-      name: 'Dashboard',
-      href: '/dashboard',
-      icon: Icons.Dashboard,
-    },
-    {
-      name: 'Send Money',
-      href: '/transfer',
-      icon: Icons.Send,
-    },
-    {
-      name: 'Transactions',
-      href: '/transactions',
-      icon: Icons.History,
-    },
-    {
-      name: 'Top Up Sandbox',
-      href: '/topup',
-      icon: Icons.Plus,
-    },
-    {
-      name: 'Profile & Security',
-      href: '/profile',
-      icon: Icons.User,
-    },
-    {
-      name: 'Admin Audit',
-      href: '/admin',
-      icon: Icons.Shield,
-      badge: 'v1',
-    },
-  ];
-
   return (
-    <aside className="w-64 shrink-0 bg-slate-950/80 border-r border-slate-800/80 flex flex-col justify-between p-4 min-h-screen">
+    <aside className="hidden md:flex w-64 shrink-0 bg-slate-950/80 border-r border-slate-800/80 flex-col justify-between p-4 min-h-screen">
       <div>
         {/* Brand Header */}
         <Link href="/dashboard" className="flex items-center gap-3 px-3 py-4 mb-6 group">
@@ -69,9 +37,9 @@ export function Sidebar() {
           <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             Main Menu
           </div>
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href));
-            const Icon = item.icon;
+          {MAIN_NAV_ITEMS.map((item) => {
+            const isActive = isNavItemActive(pathname, item);
+            const Icon = Icons[item.icon];
 
             return (
               <Link
@@ -91,18 +59,8 @@ export function Sidebar() {
                       isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
                     )}
                   />
-                  <span>{item.name}</span>
+                  <span>{item.label}</span>
                 </div>
-                {item.badge && (
-                  <span
-                    className={cn(
-                      'text-[10px] font-mono px-1.5 py-0.5 rounded',
-                      isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
-                    )}
-                  >
-                    {item.badge}
-                  </span>
-                )}
               </Link>
             );
           })}

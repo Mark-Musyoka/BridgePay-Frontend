@@ -383,15 +383,42 @@ Money and bank-account payout endpoints.
 | 5 | Payment method linking UI (Stripe Elements card form, M-Pesa phone form) | Item 4 |
 | 6 | `/deposit` — Stripe card, M-Pesa, and Airtel Money, replacing `/topup` | Item 5 (a linked card helps but isn't strictly required for M-Pesa/Airtel) |
 | 7 | `/payout` — M-Pesa, Stripe card, bank account, and Airtel Money | Item 5 |
-| 8 | `/notifications` page + unread-count badge on `/dashboard` | — |
+| 8 | `/notifications` page + unread-count badge on `/dashboard` (the header's notification bell currently just shows a toast — wiring it to a real unread count and a link to `/notifications` is part of this item) | — |
 | 9 | `/dashboard`, `/transfer`, `/transactions` + `/transactions/[id]`, `/admin` | — |
-| 10 | Polish pass — loading/empty states, error boundaries, responsive layout, the `403`-unverified banner on `/transfer` and `/payout`, sidebar nav updated to point at `/deposit` instead of `/topup` and to include `/payout`/`/notifications` | Items 1-9 |
+| 10 | Landing/Welcome screen at `/` — introduces BridgePay before Login/Register, with "Get Started" (→ Register) and "Log in" (→ Login) | — |
+| 11 | Dark mode toggle — needs a real theming pass first (see note below), not just a switch | — |
+| 12 | Polish pass — loading/empty states, error boundaries, the `403`-unverified banner on `/transfer` and `/payout` | Items 1-11 |
+
+**Nav responsiveness — done:** `BottomNav` (mobile) and `Sidebar`
+(tablet/desktop, `md` breakpoint and up) now share one canonical item
+list (`lib/navigation.ts`) instead of two independently-maintained
+ones, and both correctly point at `/deposit`/`/payout` instead of the
+dead `/topup` link. `Header` stays visible at every breakpoint (offset
+past the sidebar's width on desktop) so the notification bell and
+profile link aren't lost when the sidebar takes over.
+
+**Dark mode — not started, needs scoping first.** The current
+components hardcode colors directly (`bg-slate-950`, `text-white`,
+etc.) rather than through theme-aware tokens, so a real toggle needs a
+pass to move those onto CSS variables / a theme provider first — it's
+a genuine feature, not a quick switch to bolt on.
+
+**Separate marketing domain — a recorded decision, not scheduled
+yet.** The intent is for BridgePay's main domain to be a standalone
+introduction/marketing site (what BridgePay is, for a visitor who's
+never heard of it), with everything in this repo — login through
+admin — living under a subdomain (e.g. `app.bridgepay.<tld>`) as the
+actual product. That's a separate site/repo, to be designed later; the
+Landing/Welcome screen above (item 10) is a lighter-weight stand-in
+inside this same app in the meantime, not the final marketing site.
 
 ## 7. Explicitly out of scope for now
 - Admin dashboard beyond a read-only list (no fraud-flagging UI — the
   backend has no `is_flagged` concept to flag against, see
   BridgePay-Backend's README Phase 9)
 - Mobile app — web only for now
+- The standalone marketing domain described above — recorded as a
+  future decision, not part of this repo's build
 
 ## 8. Path to launch — task division (target: Friday, September 18, 2026)
 **Note:** this split was written assuming the partial progress described
@@ -474,6 +501,7 @@ src/
   lib/
     api.ts                    # typed backend API client + `api` namespace object
     auth.ts                   # httpOnly cookie helpers
+    navigation.ts             # shared nav items — BottomNav and Sidebar both read from this
     utils.ts
   types/
     index.ts                  # shared TS types matching backend schemas

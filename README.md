@@ -94,7 +94,7 @@ src/
 │                                 # RecentTransactions, TransactionTable, TransactionFilters, etc.)
 ├── hooks/                        # useAuth, useToast
 ├── context/                      # AuthContext, ToastContext (hooks/ re-exports these)
-├── lib/                          # api.ts, auth.ts, utils.ts
+├── lib/                          # api.ts, auth.ts, navigation.ts, utils.ts
 └── types/                        # TypeScript interfaces
 ```
 
