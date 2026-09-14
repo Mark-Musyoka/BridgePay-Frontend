@@ -6,7 +6,7 @@ import { Transaction } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { Icons } from '@/components/ui/Icons';
 import { TableRowSkeleton } from '@/components/ui/Skeleton';
-import { formatCurrency, formatDate, truncateHash, truncateString } from '@/lib/utils';
+import { formatCurrency, formatDate, truncateHash } from '@/lib/utils';
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -51,7 +51,6 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
             transactions.map((tx) => {
               const isSend = tx.type === 'transfer_sent';
               const isTopup = tx.type === 'topup' || tx.type === 'deposit';
-              const isReceived = tx.type === 'transfer_received';
 
               return (
                 <tr key={tx.id} className="hover:bg-slate-850/40 transition-colors group">

@@ -2,11 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 
 export function Header() {
-  const { user } = useAuth();
   const { showToast } = useToast();
 
   const handleNotifications = () => {
