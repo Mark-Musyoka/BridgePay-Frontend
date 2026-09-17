@@ -9,7 +9,7 @@ platform (auth, dashboard, transfers, transaction history). See
 |---|---|---|
 | Mark Musyoka | [@Mark-Musyoka](https://github.com/Mark-Musyoka) | Owner |
 | Abednego Ndimu | [@abednegoingplaces](https://github.com/abednegoingplaces) | Collaborator |
-| Franklin Tumaini | [@Antony-debug-jpg](https://github.com/Antony-debug-jpg) | Collaborator — database and frontend |
+| Frankline Tumaini | [@Antony-debug-jpg](https://github.com/Antony-debug-jpg) | Collaborator — database and frontend |
 
 ## Tech stack
 | Layer | Choice |
