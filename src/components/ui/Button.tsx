@@ -25,23 +25,20 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]';
+      'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]';
 
     const variants = {
-      primary:
-        'bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-white shadow-lg shadow-indigo-500/25 focus:ring-indigo-500 border border-indigo-400/20',
+      primary: 'bg-primary hover:opacity-90 text-on-primary shadow-sm focus:ring-primary',
       secondary:
-        'bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700/60 focus:ring-slate-500 shadow-sm',
+        'bg-surface-container-high hover:bg-surface-container-highest text-on-surface border border-outline-variant focus:ring-primary',
       outline:
-        'bg-transparent hover:bg-slate-800/60 text-slate-200 border border-slate-700/80 hover:border-slate-600 focus:ring-indigo-500',
-      ghost:
-        'bg-transparent hover:bg-slate-800/50 text-slate-300 hover:text-white focus:ring-slate-500',
-      danger:
-        'bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white shadow-lg shadow-rose-600/25 focus:ring-rose-500 border border-rose-400/20',
+        'bg-transparent hover:bg-surface-container text-on-surface border border-outline focus:ring-primary',
+      ghost: 'bg-transparent hover:bg-surface-container text-on-surface-variant hover:text-on-surface focus:ring-primary',
+      danger: 'bg-error hover:opacity-90 text-on-error shadow-sm focus:ring-error',
       success:
-        'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-emerald-500/25 focus:ring-emerald-500 border border-emerald-400/20',
+        'bg-secondary hover:opacity-90 text-on-secondary shadow-sm focus:ring-secondary',
       glass:
-        'bg-white/5 hover:bg-white/10 backdrop-blur-md text-white border border-white/10 shadow-lg focus:ring-indigo-500',
+        'bg-surface/70 hover:bg-surface backdrop-blur-md text-on-surface border border-outline-variant shadow-sm focus:ring-primary',
     };
 
     const sizes = {

@@ -68,20 +68,23 @@ export function Badge({
     }
   }
 
+  // Each pairing below is a Material 3 "container"/"on-container" pair
+  // from globals.css, chosen specifically for sufficient contrast on a
+  // light surface — not an arbitrary color choice.
   const variants = {
-    success: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/30',
-    warning: 'bg-amber-950/80 text-amber-300 border-amber-500/30',
-    error: 'bg-rose-950/80 text-rose-300 border-rose-500/30',
-    info: 'bg-indigo-950/80 text-indigo-300 border-indigo-500/30',
-    neutral: 'bg-slate-800/80 text-slate-300 border-slate-700/60',
+    success: 'bg-secondary-container text-on-secondary-container border-transparent',
+    warning: 'bg-tertiary-fixed text-on-tertiary-fixed border-transparent',
+    error: 'bg-error-container text-on-error-container border-transparent',
+    info: 'bg-primary-fixed text-on-primary-fixed border-transparent',
+    neutral: 'bg-surface-container-high text-on-surface-variant border-transparent',
   };
 
   const dotColors = {
-    success: 'bg-emerald-400',
-    warning: 'bg-amber-400 animate-pulse',
-    error: 'bg-rose-400',
-    info: 'bg-indigo-400',
-    neutral: 'bg-slate-400',
+    success: 'bg-secondary',
+    warning: 'bg-on-tertiary-container animate-pulse',
+    error: 'bg-error',
+    info: 'bg-primary',
+    neutral: 'bg-outline',
   };
 
   return (
