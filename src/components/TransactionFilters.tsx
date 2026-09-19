@@ -27,15 +27,14 @@ export function TransactionFilters({
   isLoading = false,
 }: TransactionFiltersProps) {
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-slate-900/60 rounded-2xl border border-slate-800/80">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-surface-container-low rounded-2xl border border-outline-variant">
       {/* Search Bar */}
       <div className="flex-1 max-w-md">
         <Input
           placeholder="Search by email, note, or transaction ID..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          leftIcon={<Icons.Search className="w-4 h-4 text-slate-400" />}
-          className="bg-slate-950/60"
+          leftIcon={<Icons.Search className="w-4 h-4 text-on-surface-variant" />}
         />
       </div>
 
@@ -45,7 +44,7 @@ export function TransactionFilters({
         <select
           value={status}
           onChange={(e) => onStatusChange(e.target.value)}
-          className="bg-slate-950/60 border border-slate-700/70 text-slate-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/60"
         >
           <option value="all">All Statuses</option>
           <option value="completed">Completed</option>
@@ -58,7 +57,7 @@ export function TransactionFilters({
         <select
           value={type}
           onChange={(e) => onTypeChange(e.target.value)}
-          className="bg-slate-950/60 border border-slate-700/70 text-slate-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/60"
         >
           <option value="all">All Types</option>
           <option value="transfer_sent">Sent Transfers</option>

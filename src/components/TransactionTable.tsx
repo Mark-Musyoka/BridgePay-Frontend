@@ -15,10 +15,10 @@ interface TransactionTableProps {
 
 export function TransactionTable({ transactions, isLoading = false }: TransactionTableProps) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-800/80 bg-slate-900/60 shadow-lg">
+    <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface-container-low shadow-sm">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="border-b border-slate-800/80 bg-slate-950/40 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <tr className="border-b border-outline-variant bg-surface-container-lowest text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
             <th className="py-3.5 px-4">Type / Counterparty</th>
             <th className="py-3.5 px-4">Transaction ID</th>
             <th className="py-3.5 px-4">Reference / Note</th>
@@ -28,7 +28,7 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
             <th className="py-3.5 px-4 text-center">Action</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 text-sm">
+        <tbody className="divide-y divide-outline-variant text-sm">
           {isLoading ? (
             <>
               <TableRowSkeleton cols={7} />
@@ -39,12 +39,12 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
             </>
           ) : transactions.length === 0 ? (
             <tr>
-              <td colSpan={7} className="py-12 text-center text-slate-400">
-                <div className="w-12 h-12 rounded-full bg-slate-800/60 flex items-center justify-center mx-auto mb-3 text-slate-500">
+              <td colSpan={7} className="py-12 text-center text-on-surface-variant">
+                <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mx-auto mb-3 text-on-surface-variant">
                   <Icons.Search className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-medium text-slate-300">No transactions match your search</p>
-                <p className="text-xs text-slate-400 mt-1">Try clearing or adjusting your search filters</p>
+                <p className="text-sm font-medium text-on-surface">No transactions match your search</p>
+                <p className="text-xs text-on-surface-variant mt-1">Try clearing or adjusting your search filters</p>
               </td>
             </tr>
           ) : (
@@ -53,17 +53,17 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
               const isTopup = tx.type === 'topup' || tx.type === 'deposit';
 
               return (
-                <tr key={tx.id} className="hover:bg-slate-850/40 transition-colors group">
+                <tr key={tx.id} className="hover:bg-surface-container transition-colors group">
                   {/* Type / Counterparty */}
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-9 h-9 rounded-xl flex items-center justify-center border shrink-0 ${
                           isSend
-                            ? 'bg-rose-950/40 border-rose-500/30 text-rose-400'
+                            ? 'bg-error-container border-error/30 text-on-error-container'
                             : isTopup
-                            ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-400'
-                            : 'bg-indigo-950/40 border-indigo-500/30 text-indigo-400'
+                            ? 'bg-secondary-container border-secondary/30 text-on-secondary-container'
+                            : 'bg-primary-fixed border-primary/30 text-on-primary-fixed'
                         }`}
                       >
                         {isSend ? (
@@ -75,14 +75,14 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
                         )}
                       </div>
                       <div>
-                        <p className="font-semibold text-white text-xs truncate max-w-[170px]">
+                        <p className="font-semibold text-on-surface text-xs truncate max-w-[170px]">
                           {isSend
                             ? tx.to_user_email || 'Recipient'
                             : isTopup
                             ? 'Sandbox Deposit'
                             : tx.from_user_email || 'Sender'}
                         </p>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-[11px] text-on-surface-variant">
                           {isSend ? 'Sent P2P' : isTopup ? 'Wallet Credit' : 'Received P2P'}
                         </p>
                       </div>
@@ -90,17 +90,17 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
                   </td>
 
                   {/* Transaction ID */}
-                  <td className="py-4 px-4 font-mono text-xs text-slate-400">
+                  <td className="py-4 px-4 font-mono text-xs text-on-surface-variant">
                     <span title={tx.id}>{truncateHash(tx.id, 6, 4)}</span>
                   </td>
 
                   {/* Note */}
-                  <td className="py-4 px-4 text-xs text-slate-300 max-w-[200px] truncate">
-                    {tx.reference_note || <span className="text-slate-500 italic">None</span>}
+                  <td className="py-4 px-4 text-xs text-on-surface-variant max-w-[200px] truncate">
+                    {tx.reference_note || <span className="italic opacity-70">None</span>}
                   </td>
 
                   {/* Date */}
-                  <td className="py-4 px-4 text-xs text-slate-400 whitespace-nowrap">
+                  <td className="py-4 px-4 text-xs text-on-surface-variant whitespace-nowrap">
                     {formatDate(tx.created_at)}
                   </td>
 
@@ -111,7 +111,7 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
 
                   {/* Amount */}
                   <td className="py-4 px-4 text-right font-mono font-bold whitespace-nowrap">
-                    <span className={isSend ? 'text-slate-200' : 'text-emerald-400'}>
+                    <span className={isSend ? 'text-on-surface' : 'text-secondary'}>
                       {isSend ? '-' : '+'}
                       {formatCurrency(tx.amount, tx.currency)}
                     </span>
@@ -121,7 +121,7 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
                   <td className="py-4 px-4 text-center">
                     <Link
                       href={`/transactions/${tx.id}`}
-                      className="inline-flex items-center justify-center p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                      className="inline-flex items-center justify-center p-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors"
                       title="View Receipt"
                     >
                       <Icons.ExternalLink className="w-4 h-4" />

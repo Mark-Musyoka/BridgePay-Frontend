@@ -18,8 +18,8 @@ export function StatCards({ stats, isLoading = false }: StatCardsProps) {
       currency: stats?.currency ?? 'USD',
       change: '+14.2% vs last month',
       icon: Icons.ArrowDownLeft,
-      iconColor: 'text-emerald-400 bg-emerald-950/60 border-emerald-500/30',
-      textColor: 'text-emerald-400',
+      iconColor: 'text-on-secondary-container bg-secondary-container border-secondary/30',
+      textColor: 'text-secondary',
     },
     {
       title: 'Total Sent (Outflow)',
@@ -27,8 +27,8 @@ export function StatCards({ stats, isLoading = false }: StatCardsProps) {
       currency: stats?.currency ?? 'USD',
       change: '4 transfers settled',
       icon: Icons.ArrowUpRight,
-      iconColor: 'text-indigo-400 bg-indigo-950/60 border-indigo-500/30',
-      textColor: 'text-indigo-400',
+      iconColor: 'text-on-primary-fixed bg-primary-fixed border-primary/30',
+      textColor: 'text-primary',
     },
     {
       title: 'Network Activity',
@@ -37,8 +37,8 @@ export function StatCards({ stats, isLoading = false }: StatCardsProps) {
       currency: '',
       change: '100% On-Time Settlement',
       icon: Icons.Shield,
-      iconColor: 'text-amber-400 bg-amber-950/60 border-amber-500/30',
-      textColor: 'text-slate-100',
+      iconColor: 'text-on-tertiary-fixed bg-tertiary-fixed border-tertiary/30',
+      textColor: 'text-on-surface',
     },
   ];
 
@@ -49,19 +49,19 @@ export function StatCards({ stats, isLoading = false }: StatCardsProps) {
         return (
           <div
             key={idx}
-            className="p-5 rounded-2xl bg-slate-900/60 backdrop-blur-md border border-slate-800/80 shadow-md hover:border-slate-700/80 transition-all"
+            className="p-5 rounded-2xl bg-surface-container-low backdrop-blur-md border border-outline-variant shadow-sm hover:border-outline transition-all"
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-slate-400">{item.title}</span>
+              <span className="text-xs font-medium text-on-surface-variant">{item.title}</span>
               <div className={`p-2 rounded-xl border ${item.iconColor}`}>
                 <Icon className="w-4 h-4" />
               </div>
             </div>
 
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-bold text-white tracking-tight font-mono">
+              <span className="text-2xl font-bold text-on-surface tracking-tight font-mono">
                 {isLoading ? (
-                  <span className="inline-block w-24 h-7 bg-slate-800 rounded animate-pulse" />
+                  <span className="inline-block w-24 h-7 bg-surface-container-high rounded animate-pulse" />
                 ) : item.isCount ? (
                   `${item.amount} Transfers`
                 ) : (
@@ -70,7 +70,7 @@ export function StatCards({ stats, isLoading = false }: StatCardsProps) {
               </span>
             </div>
 
-            <p className="text-[11px] text-slate-400 mt-2 flex items-center gap-1">
+            <p className="text-[11px] text-on-surface-variant mt-2 flex items-center gap-1">
               <span>{item.change}</span>
             </p>
           </div>

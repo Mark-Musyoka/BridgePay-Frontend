@@ -10,6 +10,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   full_name: string;
+  country: string; // ISO 3166-1 alpha-2, required by the backend
 }
 
 /** POST /auth/login — request body (sent as form-urlencoded, NOT JSON) */
@@ -26,9 +27,20 @@ export interface User {
   id: string;
   email: string;
   full_name: string;
+  country: string | null;
   is_active: boolean;
   is_verified: boolean;
   created_at: string; // ISO 8601 datetime from the backend
+  // NOTE: the backend's UserResponse has no is_admin field at all — the
+  // only way to know if the current user is an admin is to try an
+  // admin-only endpoint and see whether it's 200 or 403. The /admin
+  // page relies on that, not on any flag here.
+}
+
+/** GET /countries — 200 response item. Public, unauthenticated endpoint. */
+export interface Country {
+  code: string; // ISO 3166-1 alpha-2
+  name: string;
 }
 
 export type RegisterResponse = User;
@@ -195,4 +207,45 @@ export interface ApiErrorDetail {
 
 export interface ApiErrorResponse {
   detail?: string | ApiErrorDetail[];
+}
+
+// ─── Notifications ───────────────────────────
+
+export type NotificationType =
+  | "transfer_sent"
+  | "transfer_received"
+  | "deposit_completed"
+  | "deposit_failed"
+  | "payout_sent"
+  | "payout_failed"
+  | "payout_reversed"
+  | "security_alert"
+  | "account_update";
+
+/** GET /notifications — item shape */
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+/** GET /notifications?page=1&page_size=20 — 200 response */
+export interface NotificationListResponse {
+  items: Notification[];
+  total: number;
+  unread_count: number;
+  page: number;
+  page_size: number;
+}
+
+// ─── Google OAuth ─────────────────────────────
+
+/** POST /auth/google/exchange — request body. `code` is the short-lived
+ * handoff code from the backend's own redirect to
+ * /auth/google/complete?code=..., NOT a Google authorization code. */
+export interface GoogleExchangeRequest {
+  code: string;
 }

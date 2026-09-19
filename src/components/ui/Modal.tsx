@@ -46,27 +46,27 @@ export function Modal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+      {/* Backdrop — a plain dimmer, independent of the app's own theme */}
       <div
-        className="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity animate-in fade-in"
+        className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity animate-in fade-in"
         onClick={onClose}
       />
 
       {/* Modal Dialog Content */}
       <div
         className={cn(
-          'relative w-full bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200',
+          'relative w-full bg-surface border border-outline-variant rounded-2xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200',
           maxWidths[maxWidth]
         )}
       >
-        <div className="flex items-center justify-between p-5 border-b border-slate-800">
+        <div className="flex items-center justify-between p-5 border-b border-outline-variant">
           <div>
-            {title && <h3 className="text-base font-semibold text-white">{title}</h3>}
-            {description && <p className="text-xs text-slate-400 mt-0.5">{description}</p>}
+            {title && <h3 className="text-base font-semibold text-on-surface">{title}</h3>}
+            {description && <p className="text-xs text-on-surface-variant mt-0.5">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            className="p-1.5 text-on-surface-variant hover:text-on-surface rounded-lg hover:bg-surface-container transition-colors"
           >
             <Icons.Close className="w-5 h-5" />
           </button>

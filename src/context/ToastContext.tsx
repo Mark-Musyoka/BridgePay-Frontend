@@ -47,25 +47,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
         {toasts.map((toast) => {
           const bgColors = {
-            success: 'bg-emerald-950/90 border-emerald-500/30 text-emerald-100',
-            error: 'bg-rose-950/90 border-rose-500/30 text-rose-100',
-            warning: 'bg-amber-950/90 border-amber-500/30 text-amber-100',
-            info: 'bg-slate-900/95 border-indigo-500/30 text-slate-100',
-          }[toast.type];
-
-          const iconColors = {
-            success: 'text-emerald-400',
-            error: 'text-rose-400',
-            warning: 'text-amber-400',
-            info: 'text-indigo-400',
+            success: 'bg-secondary-container border-secondary/30 text-on-secondary-container',
+            error: 'bg-error-container border-error/30 text-on-error-container',
+            warning: 'bg-tertiary-fixed border-tertiary/30 text-on-tertiary-fixed',
+            info: 'bg-primary-fixed border-primary/30 text-on-primary-fixed',
           }[toast.type];
 
           return (
             <div
               key={toast.id}
-              className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl border backdrop-blur-md shadow-2xl transition-all duration-300 animate-in slide-in-from-bottom-3 ${bgColors}`}
+              className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl border backdrop-blur-md shadow-lg transition-all duration-300 animate-in slide-in-from-bottom-3 ${bgColors}`}
             >
-              <div className={`mt-0.5 shrink-0 ${iconColors}`}>
+              <div className="mt-0.5 shrink-0">
                 {toast.type === 'success' && (
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -88,12 +81,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 )}
               </div>
               <div className="flex-1 text-sm">
-                {toast.title && <p className="font-semibold text-white mb-0.5">{toast.title}</p>}
+                {toast.title && <p className="font-semibold mb-0.5">{toast.title}</p>}
                 <p className="opacity-90">{toast.message}</p>
               </div>
               <button
                 onClick={() => removeToast(toast.id)}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="opacity-60 hover:opacity-100 transition-opacity"
                 aria-label="Dismiss notification"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

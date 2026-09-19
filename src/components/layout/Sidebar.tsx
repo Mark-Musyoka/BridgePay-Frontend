@@ -14,27 +14,22 @@ export function Sidebar() {
   const { user, logout } = useAuth();
 
   return (
-    <aside className="hidden md:flex w-64 shrink-0 bg-slate-950/80 border-r border-slate-800/80 flex-col justify-between p-4 min-h-screen">
+    <aside className="hidden md:flex w-64 shrink-0 bg-surface border-r border-outline-variant flex-col justify-between p-4 min-h-screen">
       <div>
         {/* Brand Header */}
         <Link href="/dashboard" className="flex items-center gap-3 px-3 py-4 mb-6 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-            <Icons.Wallet className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+            <Icons.Wallet className="w-5 h-5 text-on-primary" />
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-lg text-white tracking-tight">BridgePay</span>
-              <span className="text-[10px] uppercase font-mono font-semibold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                P2P
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400">Payments & Remittance</p>
+            <span className="font-bold text-lg text-on-surface tracking-tight">BridgePay</span>
+            <p className="text-[11px] text-on-surface-variant">Payments & Remittance</p>
           </div>
         </Link>
 
         {/* Navigation items */}
         <div className="space-y-1">
-          <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
             Main Menu
           </div>
           {MAIN_NAV_ITEMS.map((item) => {
@@ -48,15 +43,15 @@ export function Sidebar() {
                 className={cn(
                   'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group',
                   isActive
-                    ? 'bg-gradient-to-r from-indigo-600/90 to-indigo-700/80 text-white shadow-md shadow-indigo-600/20 border border-indigo-400/20'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border border-transparent'
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border border-transparent'
                 )}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     className={cn(
                       'w-5 h-5 transition-colors',
-                      isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
+                      isActive ? 'text-on-primary' : 'text-on-surface-variant group-hover:text-on-surface'
                     )}
                   />
                   <span>{item.label}</span>
@@ -68,16 +63,16 @@ export function Sidebar() {
       </div>
 
       {/* User Section & Logout */}
-      <div className="pt-4 border-t border-slate-800/80 space-y-3">
+      <div className="pt-4 border-t border-outline-variant space-y-3">
         {user && (
-          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+          <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant flex items-center justify-between">
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0">
+              <div className="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xs shrink-0">
                 {user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
               </div>
               <div className="truncate">
-                <p className="text-xs font-semibold text-white truncate">{user.full_name || 'Demo User'}</p>
-                <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
+                <p className="text-xs font-semibold text-on-surface truncate">{user.full_name || 'Demo User'}</p>
+                <p className="text-[11px] text-on-surface-variant truncate">{user.email}</p>
               </div>
             </div>
           </div>
@@ -85,7 +80,7 @@ export function Sidebar() {
 
         <button
           onClick={logout}
-          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-rose-400 hover:text-rose-200 hover:bg-rose-950/40 border border-transparent hover:border-rose-900/40 transition-all duration-200"
+          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-error hover:bg-error-container border border-transparent transition-all duration-200"
         >
           <Icons.LogOut className="w-4 h-4" />
           <span>Sign Out</span>

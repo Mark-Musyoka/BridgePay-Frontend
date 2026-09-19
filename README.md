@@ -34,30 +34,30 @@ conversion on deposits/payouts. See PLAN.md section 3a for the exact
 request/response shapes to build against.
 
 ## Status
-Every page's existing implementation has been cleared (see PLAN.md
-section 5) so each one gets rebuilt against the backend's current, full
-surface (which now includes Airtel Money
-and bank-account payouts, neither of which existed when the pages
-below were first built) rather than patched incrementally. This table
-tracks the rebuild; see PLAN.md section 3 for the full page-by-page
-spec each one needs to satisfy.
+9 pages are built and wired to real backend calls. The remaining 6
+(dashboard, transfer, deposit, payout, profile, transactions +
+transaction list) have a Lovable-built design to translate — that
+design is on a different framework (TanStack Start, not Next.js) so
+it's a reference to port, not code to merge; see PLAN.md section 5 for
+detail. Section 3 there has the full page-by-page spec each one needs
+to satisfy.
 
 | Page | Status |
 |---|---|
-| `/login` | Not started |
-| `/register` | Not started |
-| `/verify-email` | Not started |
-| `/forgot-password` | Not started |
-| `/reset-password` | Not started |
-| `/auth/google/complete` | Not started |
-| `/dashboard` | Not started |
-| `/transfer` | Not started |
-| `/deposit` | Not started |
-| `/payout` | Not started |
-| `/profile` | Not started |
-| `/notifications` | Not started |
-| `/transactions`, `/transactions/[id]` | Not started |
-| `/admin` | Not started |
+| `/login` | Built |
+| `/register` | Built |
+| `/verify-email` | Built |
+| `/forgot-password` | Built |
+| `/reset-password` | Built |
+| `/auth/google/complete` | Built |
+| `/dashboard` | Not started — Lovable design to port |
+| `/transfer` | Not started — Lovable design to port |
+| `/deposit` | Not started — Lovable design to port |
+| `/payout` | Not started — Lovable design to port |
+| `/profile` | Not started — Lovable design to port |
+| `/notifications` | Built |
+| `/transactions`, `/transactions/[id]` | List not started — Lovable design to port; detail view Built |
+| `/admin` | Built |
 
 ## App Structure
 

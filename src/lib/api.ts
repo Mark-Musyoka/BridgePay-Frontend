@@ -11,17 +11,24 @@ import type {
   VerifyEmailRequest,
   PasswordResetRequest,
   PasswordResetConfirmRequest,
+  GoogleExchangeRequest,
   User,
   Account,
+  Country,
   TransferRequest,
   Transaction,
   PaginatedTransactions,
+  NotificationListResponse,
   ApiError,
 } from "@/types";
 
 // ─── Base URL ────────────────────────────────
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+/** BridgePay-Web — the marketing/introduction site on the main domain.
+ * "Back to home" links there, not to a route in this app. */
+export const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL ?? "http://localhost:3000";
 
 // ─── Error class ─────────────────────────────
 
@@ -195,6 +202,29 @@ export async function resendVerification(token: string): Promise<void> {
   return request<void>("/api/v1/auth/resend-verification", { method: "POST" }, token);
 }
 
+/**
+ * POST /auth/google/exchange
+ * Exchanges the short-lived handoff code from the backend's own
+ * redirect to /auth/google/complete?code=... (NOT a Google code) for a
+ * real access/refresh token pair, same shape as a normal login.
+ */
+export async function googleExchange(body: GoogleExchangeRequest): Promise<LoginResponse> {
+  return request<LoginResponse>("/api/v1/auth/google/exchange", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+// ─── Reference data ──────────────────────────
+
+/**
+ * GET /countries
+ * Public, unauthenticated. Backs the registration country dropdown.
+ */
+export async function getCountries(): Promise<Country[]> {
+  return request<Country[]>("/api/v1/countries", { method: "GET" });
+}
+
 // ─── User endpoints ──────────────────────────
 
 /**
@@ -256,6 +286,37 @@ export async function getTransactions(
     { method: "GET" },
     token,
   );
+}
+
+// ─── Notification endpoints ──────────────────
+
+/**
+ * GET /notifications?page=<n>&page_size=<n>
+ * Includes unread_count in the response, not just the paginated items —
+ * that's what a bell-icon badge should read, not items.length (which
+ * is just this one page's size).
+ */
+export async function getNotifications(
+  token: string,
+  page: number = 1,
+  pageSize: number = 20,
+): Promise<NotificationListResponse> {
+  const params = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+  return request<NotificationListResponse>(
+    `/api/v1/notifications?${params.toString()}`,
+    { method: "GET" },
+    token,
+  );
+}
+
+/** POST /notifications/{id}/read — 204 on success */
+export async function markNotificationRead(id: string, token: string): Promise<void> {
+  return request<void>(`/api/v1/notifications/${id}/read`, { method: "POST" }, token);
+}
+
+/** POST /notifications/read-all — 204 on success */
+export async function markAllNotificationsRead(token: string): Promise<void> {
+  return request<void>("/api/v1/notifications/read-all", { method: "POST" }, token);
 }
 
 // ─── Admin endpoints ─────────────────────────
@@ -385,6 +446,42 @@ export const api = {
     if (opts.user_email) params.set("user_email", opts.user_email);
     return proxyFetch<PaginatedTransactions>(`/api/admin/transactions?${params.toString()}`);
   },
+
+  getAuditLogs: (opts: { page?: number; page_size?: number; action?: string } = {}) => {
+    const params = new URLSearchParams({
+      page: String(opts.page ?? 1),
+      page_size: String(opts.page_size ?? 20),
+    });
+    if (opts.action) params.set("action", opts.action);
+    return proxyFetch<{
+      items: Array<{
+        id: string;
+        user_id: string | null;
+        action: string;
+        detail: string | null;
+        ip_address: string | null;
+        created_at: string;
+      }>;
+      total: number;
+      page: number;
+      page_size: number;
+    }>(`/api/admin/audit-logs?${params.toString()}`);
+  },
+
+  resendVerification: () => proxyFetch<void>("/api/auth/resend-verification", { method: "POST" }),
+
+  getNotifications: (opts: { page?: number; page_size?: number } = {}) => {
+    const params = new URLSearchParams({
+      page: String(opts.page ?? 1),
+      page_size: String(opts.page_size ?? 20),
+    });
+    return proxyFetch<NotificationListResponse>(`/api/notifications?${params.toString()}`);
+  },
+
+  markNotificationRead: (id: string) =>
+    proxyFetch<void>(`/api/notifications/${id}/read`, { method: "POST" }),
+
+  markAllNotificationsRead: () => proxyFetch<void>("/api/notifications/read-all", { method: "POST" }),
 
   async getTransactionById(id: string): Promise<Transaction> {
     const { items } = await api.getTransactions({ page: 1, page_size: 100 });
