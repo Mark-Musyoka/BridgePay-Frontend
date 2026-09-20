@@ -1,6 +1,6 @@
 # BridgePay — Frontend
 
-Next.js client for BridgePay — a payments
+Next.js client for BridgePay — an advanced payments
 platform (auth, dashboard, transfers, transaction history). See
 [PLAN.md](./PLAN.md) for the full architecture and phased build order.
 
