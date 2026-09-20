@@ -1,6 +1,6 @@
 # BridgePay — Frontend
 
-Next.js client for BridgePay — a PayPal-style payments
+Next.js client for BridgePay — a payments
 platform (auth, dashboard, transfers, transaction history). See
 [PLAN.md](./PLAN.md) for the full architecture and phased build order.
 
@@ -8,8 +8,8 @@ platform (auth, dashboard, transfers, transaction history). See
 | Name | GitHub | Role |
 |---|---|---|
 | Mark Musyoka | [@Mark-Musyoka](https://github.com/Mark-Musyoka) | Owner |
-| Abednego Ndimu | [@abednegoingplaces](https://github.com/abednegoingplaces) | Collaborator |
-| Frankline Tumaini | [@Antony-debug-jpg](https://github.com/Antony-debug-jpg) | Collaborator — database and frontend |
+| Abednego Ndimu | [@abednegoingplaces](https://github.com/abednegoingplaces) | Backend, Frontend & Database|
+| Frankline Tumaini | [@Antony-debug-jpg](https://github.com/Antony-debug-jpg) | Collaborator-Backend,  database and frontend |
 
 ## Tech stack
 | Layer | Choice |
