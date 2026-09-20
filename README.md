@@ -7,7 +7,7 @@ platform (auth, dashboard, transfers, transaction history). See
 ## Team
 | Name | GitHub | Role |
 |---|---|---|
-| Mark Musyoka | [@Mark-Musyoka](https://github.com/Mark-Musyoka) | Owner |
+| Mark Musyoka | [@Mark-Musyoka](https://github.com/Mark-Musyoka) | Owner(Deployments & Hosting)|
 | Abednego Ndimu | [@abednegoingplaces](https://github.com/abednegoingplaces) | Backend, Frontend & Database|
 | Frankline Tumaini | [@Antony-debug-jpg](https://github.com/Antony-debug-jpg) | Collaborator-Backend,  database and frontend |
 
