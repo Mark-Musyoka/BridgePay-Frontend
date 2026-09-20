@@ -119,6 +119,47 @@ npm run dev
 
 Visit `http://localhost:3000`.
 
+## Test accounts (for exploring the built pages)
+The home page's "Try the live demo" button, and `AuthContext`'s
+`demoLogin()` it calls, log in as one of two fixed accounts —
+`demo-user@bridgepay.dev` / `demo-admin@bridgepay.dev`, both password
+`DemoPass123!`. Neither exists until you create them once against your
+own local backend:
+
+1. Run BridgePay-Backend locally (Postgres + Redis + the API +
+   `celery -A celery_app worker --loglevel=info` in a separate
+   terminal — verification emails are mocked as a log line from this
+   worker, so it has to be running to see them). See that repo's
+   README for the full setup.
+2. Register both accounts (via `/register` here, or `curl`):
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/auth/register \
+     -H "Content-Type: application/json" \
+     -d '{"email":"demo-user@bridgepay.dev","password":"DemoPass123!","full_name":"Demo User","country":"KE"}'
+
+   curl -X POST http://localhost:8000/api/v1/auth/register \
+     -H "Content-Type: application/json" \
+     -d '{"email":"demo-admin@bridgepay.dev","password":"DemoPass123!","full_name":"Demo Admin","country":"KE"}'
+   ```
+3. Each registration queues a verification email — find the raw token
+   in the Celery worker's log output (`Verification email to ... —
+   token: ...`) and confirm it:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/auth/verify-email \
+     -H "Content-Type: application/json" \
+     -d '{"token":"<raw token from the worker log>"}'
+   ```
+4. Flag the second account as admin directly in the database (see
+   BridgePay-Backend's README, Phase 6):
+   ```sql
+   UPDATE users SET is_admin = true WHERE email = 'demo-admin@bridgepay.dev';
+   ```
+
+After that, "Try the live demo" (or the demo account's real
+credentials on `/login`) works against your local backend like any
+other account — it's not a special bypass, just a fixed pair of real
+credentials.
+
 ## CI & Deployment
 `.github/workflows/ci.yml` runs `npm run build` and `npm run lint` on
 every push to `main` and every PR.
