@@ -86,15 +86,86 @@ export interface Account {
 
 export type AccountResponse = Account;
 
-/**
- * NOT YET IMPLEMENTED on the backend — there is no deposit/top-up
- * endpoint yet (see BridgePay-Backend README's "not built" list).
- * Kept here as groundwork for that work, not wired to anything real.
- */
-export interface TopUpRequest {
+// ─── Deposits ─────────────────────────────────
+
+export interface StripeDepositCreate {
   amount: number;
-  currency?: string;
-  payment_method?: string;
+  currency?: string; // default "usd" on the backend
+  idempotency_key?: string;
+}
+
+export interface StripeDepositResponse {
+  client_secret: string;
+  deposit_id: string;
+}
+
+export interface MpesaDepositCreate {
+  phone_number: string;
+  amount: number;
+  idempotency_key?: string;
+}
+
+export interface AirtelDepositCreate {
+  phone_number: string;
+  amount: number;
+  idempotency_key?: string;
+}
+
+export interface MpesaOrAirtelDepositResponse {
+  deposit_id: string;
+  message: string;
+}
+
+// ─── Payouts ──────────────────────────────────
+
+export interface MpesaPayoutCreate {
+  phone_number: string;
+  recipient_email: string;
+  amount: number;
+  idempotency_key?: string;
+}
+
+export interface AirtelPayoutCreate {
+  phone_number: string;
+  recipient_email: string;
+  amount: number;
+  idempotency_key?: string;
+}
+
+export interface StripeCardPayoutCreate {
+  card_token: string; // tok_... from Stripe.js — never a raw card number
+  recipient_email: string;
+  amount: number;
+  currency?: string; // default "usd" on the backend
+  idempotency_key?: string;
+}
+
+export interface BankAccountPayoutCreate {
+  bank_account_token: string; // btok_... from Stripe.js — never a raw account number
+  country: string; // ISO 3166-1 alpha-2
+  recipient_email: string;
+  amount: number;
+  currency?: string; // default "usd" on the backend
+  idempotency_key?: string;
+}
+
+export interface Payout {
+  id: string;
+  provider: 'mpesa' | 'stripe' | 'airtel';
+  status: 'pending' | 'completed' | 'failed' | 'reversed';
+  recipient_email: string;
+  amount: string;
+  currency: string;
+  failure_reason: string | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface PayoutListResponse {
+  items: Payout[];
+  total: number;
+  page: number;
+  page_size: number;
 }
 
 // ─── Transfers / Transactions ────────────────

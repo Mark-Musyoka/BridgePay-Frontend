@@ -19,6 +19,17 @@ import type {
   Transaction,
   PaginatedTransactions,
   NotificationListResponse,
+  StripeDepositCreate,
+  StripeDepositResponse,
+  MpesaDepositCreate,
+  AirtelDepositCreate,
+  MpesaOrAirtelDepositResponse,
+  MpesaPayoutCreate,
+  AirtelPayoutCreate,
+  StripeCardPayoutCreate,
+  BankAccountPayoutCreate,
+  Payout,
+  PayoutListResponse,
   ApiError,
 } from "@/types";
 
@@ -288,6 +299,57 @@ export async function getTransactions(
   );
 }
 
+// ─── Deposit endpoints ────────────────────────
+
+export async function createStripeDeposit(body: StripeDepositCreate, token: string): Promise<StripeDepositResponse> {
+  return request<StripeDepositResponse>("/api/v1/deposits/stripe", { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+export async function createMpesaDeposit(
+  body: MpesaDepositCreate,
+  token: string,
+): Promise<MpesaOrAirtelDepositResponse> {
+  return request<MpesaOrAirtelDepositResponse>(
+    "/api/v1/deposits/mpesa",
+    { method: "POST", body: JSON.stringify(body) },
+    token,
+  );
+}
+
+export async function createAirtelDeposit(
+  body: AirtelDepositCreate,
+  token: string,
+): Promise<MpesaOrAirtelDepositResponse> {
+  return request<MpesaOrAirtelDepositResponse>(
+    "/api/v1/deposits/airtel",
+    { method: "POST", body: JSON.stringify(body) },
+    token,
+  );
+}
+
+// ─── Payout endpoints ─────────────────────────
+
+export async function createMpesaPayout(body: MpesaPayoutCreate, token: string): Promise<Payout> {
+  return request<Payout>("/api/v1/payouts/mpesa", { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+export async function createAirtelPayout(body: AirtelPayoutCreate, token: string): Promise<Payout> {
+  return request<Payout>("/api/v1/payouts/airtel", { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+export async function createStripeCardPayout(body: StripeCardPayoutCreate, token: string): Promise<Payout> {
+  return request<Payout>("/api/v1/payouts/stripe-card", { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+export async function createBankAccountPayout(body: BankAccountPayoutCreate, token: string): Promise<Payout> {
+  return request<Payout>("/api/v1/payouts/bank-account", { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+export async function getPayouts(token: string, page: number = 1, pageSize: number = 20): Promise<PayoutListResponse> {
+  const params = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+  return request<PayoutListResponse>(`/api/v1/payouts?${params.toString()}`, { method: "GET" }, token);
+}
+
 // ─── Notification endpoints ──────────────────
 
 /**
@@ -393,7 +455,7 @@ export async function getAuditLogs(
 // PLAN.md's security notes) — the internal route handlers read the
 // cookie server-side and proxy to the real backend.
 //
-// Three methods have no real backend endpoint behind them yet — they
+// Two methods have no real backend endpoint behind them yet — they
 // throw a clear, descriptive error instead of silently pretending to
 // succeed:
 //   - getTransactionById: backend only exposes GET /transactions (a
@@ -401,12 +463,6 @@ export async function getAuditLogs(
 //     by fetching a page and finding the id client-side — genuinely
 //     real data, just an inefficient way to get it until a real
 //     GET /transactions/{id} endpoint exists.
-//   - topUpAccount: there is no deposit/funding endpoint on the backend
-//     at all yet (see BridgePay-Backend's README "Explicitly not built").
-//     Faking a successful response here would look broken anyway, since
-//     the topup page calls refreshAccount() right after, which re-fetches
-//     the REAL (unchanged) balance from the backend and would silently
-//     contradict a fake success.
 //   - flagTransaction: Transaction has no is_flagged concept on the
 //     backend at all — this was always UI-only, per the comment on
 //     getAdminTransactions above.
@@ -492,11 +548,33 @@ export const api = {
     return found;
   },
 
-  async topUpAccount(_body: { amount: number; currency: string; payment_method: string }): Promise<never> {
-    throw new ApiRequestError(
-      501,
-      "Deposits aren't connected to a real backend yet — Stripe/M-Pesa integration is planned but not built. See BridgePay-Backend's README.",
-    );
+  createStripeDeposit: (body: StripeDepositCreate) =>
+    proxyFetch<StripeDepositResponse>('/api/deposits/stripe', { method: 'POST', body: JSON.stringify(body) }),
+
+  createMpesaDeposit: (body: MpesaDepositCreate) =>
+    proxyFetch<MpesaOrAirtelDepositResponse>('/api/deposits/mpesa', { method: 'POST', body: JSON.stringify(body) }),
+
+  createAirtelDeposit: (body: AirtelDepositCreate) =>
+    proxyFetch<MpesaOrAirtelDepositResponse>('/api/deposits/airtel', { method: 'POST', body: JSON.stringify(body) }),
+
+  createMpesaPayout: (body: MpesaPayoutCreate) =>
+    proxyFetch<Payout>('/api/payouts/mpesa', { method: 'POST', body: JSON.stringify(body) }),
+
+  createAirtelPayout: (body: AirtelPayoutCreate) =>
+    proxyFetch<Payout>('/api/payouts/airtel', { method: 'POST', body: JSON.stringify(body) }),
+
+  createStripeCardPayout: (body: StripeCardPayoutCreate) =>
+    proxyFetch<Payout>('/api/payouts/stripe-card', { method: 'POST', body: JSON.stringify(body) }),
+
+  createBankAccountPayout: (body: BankAccountPayoutCreate) =>
+    proxyFetch<Payout>('/api/payouts/bank-account', { method: 'POST', body: JSON.stringify(body) }),
+
+  getPayouts: (opts: { page?: number; page_size?: number } = {}) => {
+    const params = new URLSearchParams({
+      page: String(opts.page ?? 1),
+      page_size: String(opts.page_size ?? 20),
+    });
+    return proxyFetch<PayoutListResponse>(`/api/payouts?${params.toString()}`);
   },
 
   async flagTransaction(_id: string, _flagged: boolean): Promise<never> {
