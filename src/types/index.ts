@@ -86,6 +86,44 @@ export interface Account {
 
 export type AccountResponse = Account;
 
+// ─── Profile / Payment Methods ───────────────
+
+/** PATCH /users/me — all fields optional, only what's provided is updated */
+export interface UpdateProfileRequest {
+  full_name?: string;
+  email?: string;
+  country?: string;
+}
+
+/** POST /users/me/change-password */
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  provider: 'stripe' | 'mpesa';
+  type: 'card' | 'mpesa_phone';
+  masked_details: string;
+  is_default: boolean;
+  created_at: string;
+}
+
+export interface StripeSetupIntentResponse {
+  client_secret: string;
+}
+
+export interface StripeConfirmCardRequest {
+  payment_method_id: string; // pm_... from the confirmed SetupIntent
+  set_as_default?: boolean;
+}
+
+export interface LinkMpesaRequest {
+  phone_number: string;
+  set_as_default?: boolean;
+}
+
 // ─── Deposits ─────────────────────────────────
 
 export interface StripeDepositCreate {

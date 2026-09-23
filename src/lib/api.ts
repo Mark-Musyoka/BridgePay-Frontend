@@ -30,6 +30,12 @@ import type {
   BankAccountPayoutCreate,
   Payout,
   PayoutListResponse,
+  UpdateProfileRequest,
+  ChangePasswordRequest,
+  PaymentMethod,
+  StripeSetupIntentResponse,
+  StripeConfirmCardRequest,
+  LinkMpesaRequest,
   ApiError,
 } from "@/types";
 
@@ -299,6 +305,42 @@ export async function getTransactions(
   );
 }
 
+// ─── Profile ──────────────────────────────────
+
+export async function updateProfile(body: UpdateProfileRequest, token: string): Promise<User> {
+  return request<User>("/api/v1/users/me", { method: "PATCH", body: JSON.stringify(body) }, token);
+}
+
+export async function changePassword(body: ChangePasswordRequest, token: string): Promise<void> {
+  return request<void>("/api/v1/users/me/change-password", { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+// ─── Payment methods ──────────────────────────
+
+export async function getPaymentMethods(token: string): Promise<PaymentMethod[]> {
+  return request<PaymentMethod[]>("/api/v1/payment-methods", { method: "GET" }, token);
+}
+
+export async function startStripeCardLink(token: string): Promise<StripeSetupIntentResponse> {
+  return request<StripeSetupIntentResponse>("/api/v1/payment-methods/stripe/setup-intent", { method: "POST" }, token);
+}
+
+export async function confirmStripeCardLink(body: StripeConfirmCardRequest, token: string): Promise<PaymentMethod> {
+  return request<PaymentMethod>(
+    "/api/v1/payment-methods/stripe/confirm",
+    { method: "POST", body: JSON.stringify(body) },
+    token,
+  );
+}
+
+export async function linkMpesaPaymentMethod(body: LinkMpesaRequest, token: string): Promise<PaymentMethod> {
+  return request<PaymentMethod>("/api/v1/payment-methods/mpesa", { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+export async function unlinkPaymentMethod(methodId: string, token: string): Promise<void> {
+  return request<void>(`/api/v1/payment-methods/${methodId}`, { method: "DELETE" }, token);
+}
+
 // ─── Deposit endpoints ────────────────────────
 
 export async function createStripeDeposit(body: StripeDepositCreate, token: string): Promise<StripeDepositResponse> {
@@ -547,6 +589,25 @@ export const api = {
     }
     return found;
   },
+
+  updateProfile: (body: UpdateProfileRequest) =>
+    proxyFetch<User>('/api/users/me', { method: 'PATCH', body: JSON.stringify(body) }),
+
+  changePassword: (body: ChangePasswordRequest) =>
+    proxyFetch<void>('/api/users/me/change-password', { method: 'POST', body: JSON.stringify(body) }),
+
+  getPaymentMethods: () => proxyFetch<PaymentMethod[]>('/api/payment-methods'),
+
+  startStripeCardLink: () => proxyFetch<StripeSetupIntentResponse>('/api/payment-methods/stripe/setup-intent', { method: 'POST' }),
+
+  confirmStripeCardLink: (body: StripeConfirmCardRequest) =>
+    proxyFetch<PaymentMethod>('/api/payment-methods/stripe/confirm', { method: 'POST', body: JSON.stringify(body) }),
+
+  linkMpesaPaymentMethod: (body: LinkMpesaRequest) =>
+    proxyFetch<PaymentMethod>('/api/payment-methods/mpesa', { method: 'POST', body: JSON.stringify(body) }),
+
+  unlinkPaymentMethod: (methodId: string) =>
+    proxyFetch<void>(`/api/payment-methods/${methodId}`, { method: 'DELETE' }),
 
   createStripeDeposit: (body: StripeDepositCreate) =>
     proxyFetch<StripeDepositResponse>('/api/deposits/stripe', { method: 'POST', body: JSON.stringify(body) }),
