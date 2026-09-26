@@ -5,11 +5,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { Card, CardContent } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 import { Icons } from '@/components/ui/Icons';
 import { API_URL } from '@/lib/api';
+
+// Local field styling matches the home page's editorial palette
+// (charcoal / warm white / coral) rather than the app's Material
+// tokens — this page and /register are public-facing, same as "/",
+// while the authenticated dashboard keeps its existing Material style.
+const fieldClass =
+  'w-full bg-white border border-black/10 text-[#14151A] placeholder:text-[#14151A]/35 rounded-xl px-4 py-2.5 pl-10 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#FF6B4A]/40 focus:border-[#FF6B4A]';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,69 +41,86 @@ export default function LoginPage() {
   };
 
   return (
-    <Card glass className="w-full max-w-sm">
-      <CardContent className="flex flex-col gap-5 py-7">
-        <div className="text-center">
-          <h1 className="text-xl font-bold text-on-surface">Welcome back</h1>
-          <p className="text-sm text-on-surface-variant mt-1">Log in to your BridgePay account</p>
-        </div>
+    <div className="w-full max-w-sm rounded-[28px] bg-[#FAF9F6] border border-black/[0.06] shadow-[0_20px_60px_-15px_rgba(20,21,26,0.15)] p-7 sm:p-8">
+      <div className="text-center">
+        <h1 className="text-2xl font-extrabold tracking-tight text-[#14151A]">Welcome back</h1>
+        <p className="text-sm text-[#14151A]/55 mt-1.5">Log in to your BridgePay account</p>
+      </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input
-            label="Email"
-            type="email"
-            autoComplete="email"
-            leftIcon={<Icons.Mail className="w-4 h-4" />}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <div className="flex flex-col gap-1.5">
-            <Input
-              label="Password"
-              type="password"
-              autoComplete="current-password"
-              leftIcon={<Icons.Lock className="w-4 h-4" />}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={error ?? undefined}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-7">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-[#14151A]/50">
+            Email
+          </label>
+          <div className="relative flex items-center">
+            <Icons.Mail className="w-4 h-4 absolute left-3.5 text-[#14151A]/40 pointer-events-none" />
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              className={fieldClass}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <Link href="/forgot-password" className="self-end text-xs text-primary hover:opacity-80">
-              Forgot password?
-            </Link>
           </div>
-
-          <Button type="submit" isLoading={isLoading} className="w-full mt-1">
-            Log in
-          </Button>
-        </form>
-
-        <div className="flex items-center gap-3">
-          <div className="h-px bg-outline-variant flex-1" />
-          <span className="text-xs text-on-surface-variant">or</span>
-          <div className="h-px bg-outline-variant flex-1" />
         </div>
 
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={() => {
-            showToast('Redirecting to Google...', 'info');
-            // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- this is a full-page redirect to the backend, an external origin, not an internal Next.js route
-            window.location.href = `${API_URL}/api/v1/auth/google/login`;
-          }}
-        >
-          Continue with Google
-        </Button>
-
-        <p className="text-center text-sm text-on-surface-variant">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-primary hover:opacity-80 font-medium">
-            Register
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-[#14151A]/50">
+            Password
+          </label>
+          <div className="relative flex items-center">
+            <Icons.Lock className="w-4 h-4 absolute left-3.5 text-[#14151A]/40 pointer-events-none" />
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              className={fieldClass}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {error && <p className="text-xs text-[#D64545] mt-0.5">{error}</p>}
+          <Link href="/forgot-password" className="self-end text-xs text-[#14151A]/55 hover:text-[#FF6B4A] transition-colors">
+            Forgot password?
           </Link>
-        </p>
-      </CardContent>
-    </Card>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full mt-1 py-3 rounded-full bg-[#14151A] text-[#FAF9F6] font-semibold text-sm hover:bg-[#14151A]/85 active:scale-[0.98] transition-all disabled:opacity-60"
+        >
+          {isLoading ? 'Logging in...' : 'Log in'}
+        </button>
+      </form>
+
+      <div className="flex items-center gap-3 my-6">
+        <div className="h-px bg-black/[0.08] flex-1" />
+        <span className="text-xs text-[#14151A]/40">or</span>
+        <div className="h-px bg-black/[0.08] flex-1" />
+      </div>
+
+      <button
+        type="button"
+        className="w-full py-3 rounded-full border border-black/10 text-[#14151A] font-semibold text-sm hover:bg-black/[0.03] active:scale-[0.98] transition-all"
+        onClick={() => {
+          showToast('Redirecting to Google...', 'info');
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- full-page redirect to the backend, an external origin, not an internal Next.js route
+          window.location.href = `${API_URL}/api/v1/auth/google/login`;
+        }}
+      >
+        Continue with Google
+      </button>
+
+      <p className="text-center text-sm text-[#14151A]/55 mt-6">
+        Don&apos;t have an account?{' '}
+        <Link href="/register" className="text-[#FF6B4A] hover:opacity-80 font-semibold">
+          Register
+        </Link>
+      </p>
+    </div>
   );
 }
