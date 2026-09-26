@@ -5,28 +5,21 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Icons } from '@/components/ui/Icons';
 
-const RAILS = [
-  { label: 'M-Pesa', sub: 'Deposit & withdraw' },
-  { label: 'Airtel Money', sub: 'Deposit & withdraw' },
-  { label: 'Card', sub: 'Visa & Mastercard' },
-  { label: 'Bank', sub: 'Local & international' },
-];
-
-const STEPS = [
+const FEATURES = [
   {
-    n: '1',
-    title: 'Connect your rails',
-    body: 'Link M-Pesa, Airtel Money, a card, or a bank account. Takes under a minute, no branch visit.',
+    icon: Icons.Wallet,
+    title: 'One balance',
+    body: 'M-Pesa, Airtel Money, card, and bank all land in the same place.',
   },
   {
-    n: '2',
-    title: 'Move money instantly',
-    body: 'Send to any BridgePay user in real time, or deposit and withdraw through whichever rail is open.',
+    icon: Icons.Send,
+    title: 'Instant transfers',
+    body: 'Send to any BridgePay user in real time, no waiting on rails.',
   },
   {
-    n: '3',
-    title: 'See it all in one place',
-    body: 'One balance, one history, multiple currencies. No switching apps to check where your money is.',
+    icon: Icons.Shield,
+    title: 'Bank-grade security',
+    body: 'Encrypted end to end, built and hosted for Kenyan rails.',
   },
 ];
 
@@ -34,144 +27,127 @@ export default function HomePage() {
   const { isAuthenticated, demoLogin } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#F6F7FB] text-[#0B1220] selection:bg-[#F2A93B]/30 selection:text-[#0B1220]">
-      {/* Top Navbar */}
-      <nav className="w-full border-b border-black/5 bg-[#F6F7FB]/90 backdrop-blur-sm sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto w-full px-5 sm:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#1B2A6B] flex items-center justify-center">
-              <Icons.Wallet className="w-4 h-4 text-white" />
+    <div className="min-h-screen bg-[#FAF9F6] text-[#14151A] selection:bg-[#FF6B4A]/25">
+      {/* Nav */}
+      <nav className="w-full sticky top-0 z-20 bg-[#FAF9F6]/85 backdrop-blur-sm border-b border-black/[0.06]">
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-md bg-[#14151A] flex items-center justify-center">
+              <Icons.Wallet className="w-3.5 h-3.5 text-[#FAF9F6]" />
             </div>
             <span className="font-bold text-[15px] tracking-tight">BridgePay</span>
           </div>
 
-          <div className="flex items-center gap-1">
-            {isAuthenticated ? (
-              <Link
-                href="/dashboard"
-                className="px-4 py-2 rounded-lg bg-[#1B2A6B] text-white font-semibold text-sm hover:bg-[#15215490] transition-colors"
-              >
-                Open wallet
+          {isAuthenticated ? (
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 rounded-full bg-[#14151A] text-[#FAF9F6] font-semibold text-sm hover:bg-[#14151A]/85 transition-colors"
+            >
+              Open wallet
+            </Link>
+          ) : (
+            <div className="flex items-center gap-1">
+              <Link href="/login" className="px-3.5 py-2 text-sm font-medium text-[#14151A]/65 hover:text-[#14151A] transition-colors">
+                Sign in
               </Link>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="px-3.5 py-2 text-sm font-medium text-[#0B1220]/70 hover:text-[#0B1220] transition-colors"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/register"
-                  className="ml-1 px-4 py-2 rounded-lg bg-[#1B2A6B] text-white font-semibold text-sm hover:bg-[#15215490] transition-colors"
-                >
-                  Get started
-                </Link>
-              </>
-            )}
-          </div>
+              <Link
+                href="/register"
+                className="ml-1 px-4 py-2 rounded-full bg-[#14151A] text-[#FAF9F6] font-semibold text-sm hover:bg-[#14151A]/85 transition-colors"
+              >
+                Get started
+              </Link>
+            </div>
+          )}
         </div>
       </nav>
 
       <main>
-        {/* Hero */}
-        <section className="max-w-6xl mx-auto px-5 sm:px-8 pt-14 sm:pt-20 pb-16 sm:pb-24 grid md:grid-cols-2 gap-12 md:gap-8 items-center">
-          {/* Left: copy */}
-          <div className="max-w-md">
-            <h1 className="text-[2.5rem] sm:text-5xl font-extrabold tracking-tight leading-[1.08] text-balance">
-              One wallet. Every way you already pay.
-            </h1>
-            <p className="mt-5 text-base text-[#0B1220]/65 leading-relaxed max-w-sm">
-              Deposit and withdraw through M-Pesa, Airtel Money, card, or bank account,
-              then send to any BridgePay user instantly. No new habits, no waiting on rails to talk to each other.
-            </p>
+        {/* Hero — centered, editorial */}
+        <section className="max-w-2xl mx-auto px-6 pt-20 sm:pt-28 pb-16 text-center flex flex-col items-center">
+          <span className="text-xs font-semibold tracking-[0.14em] uppercase text-[#FF6B4A]">
+            Built for how Kenya actually pays
+          </span>
+          <h1 className="mt-4 text-[2.75rem] sm:text-[3.25rem] font-extrabold tracking-tight leading-[1.05]">
+            Every rail you use.
+            <br />
+            One wallet that holds it.
+          </h1>
+          <p className="mt-5 text-base sm:text-lg text-[#14151A]/60 leading-relaxed max-w-md">
+            M-Pesa, Airtel Money, card, or bank — deposit from any of them, send to
+            anyone on BridgePay instantly, and see it all in one balance.
+          </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href="/register"
-                className="px-6 py-3 rounded-xl bg-[#1B2A6B] text-white font-semibold text-sm hover:bg-[#141f4f] active:scale-[0.98] transition-all"
-              >
-                Create free account
-              </Link>
-              <button
-                onClick={() => demoLogin('user')}
-                className="px-6 py-3 rounded-xl border border-[#0B1220]/15 text-[#0B1220] font-semibold text-sm hover:bg-black/[0.03] active:scale-[0.98] transition-all"
-              >
-                Try the live demo
-              </button>
-            </div>
-
-            <div className="mt-8 flex items-center gap-2 text-sm text-[#0B1220]/55">
-              <Icons.Shield className="w-4 h-4 shrink-0" />
-              <span>Encrypted end to end. Built and hosted for Kenyan rails.</span>
-            </div>
-          </div>
-
-          {/* Right: rails converging into wallet */}
-          <div className="relative w-full max-w-sm mx-auto md:mx-0 md:ml-auto" aria-hidden="true">
-            <div className="grid grid-cols-2 gap-3">
-              {RAILS.map((rail, i) => (
-                <div
-                  key={rail.label}
-                  className="rail-chip rounded-xl border border-black/5 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(11,18,32,0.06)]"
-                  style={{ animationDelay: `${i * 90}ms` }}
-                >
-                  <p className="text-sm font-semibold">{rail.label}</p>
-                  <p className="text-xs text-[#0B1220]/50 mt-0.5">{rail.sub}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-center my-3">
-              <svg width="2" height="28" viewBox="0 0 2 28" className="rail-line">
-                <line x1="1" y1="0" x2="1" y2="28" stroke="#1B2A6B" strokeWidth="2" strokeDasharray="28" strokeDashoffset="28" />
-              </svg>
-            </div>
-
-            <div className="rail-chip wallet-card rounded-2xl bg-[#1B2A6B] text-white p-5 shadow-[0_8px_24px_rgba(27,42,107,0.25)]" style={{ animationDelay: '380ms' }}>
-              <span className="text-xs text-white/60 font-medium">Available balance</span>
-              <div className="flex items-baseline gap-1.5 mt-1">
-                <span className="text-sm font-semibold text-white/70">KES</span>
-                <span className="text-3xl font-extrabold font-mono tabular-nums">48,250.00</span>
-              </div>
-              <div className="mt-3 flex items-center gap-1.5 text-xs text-[#F2A93B] font-medium">
-                <Icons.CheckCircle className="w-3.5 h-3.5" />
-                <span>All rails connected</span>
-              </div>
-            </div>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/register"
+              className="px-7 py-3.5 rounded-full bg-[#14151A] text-[#FAF9F6] font-semibold text-sm hover:bg-[#14151A]/85 active:scale-[0.98] transition-all"
+            >
+              Create free account
+            </Link>
+            <button
+              onClick={() => demoLogin('user')}
+              className="px-7 py-3.5 rounded-full border border-[#14151A]/15 font-semibold text-sm hover:bg-black/[0.03] active:scale-[0.98] transition-all"
+            >
+              Try the live demo
+            </button>
           </div>
         </section>
 
-        {/* How it works */}
-        <section className="border-t border-black/5 bg-white">
-          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight max-w-md">
-              From any rail to your wallet, in three steps
-            </h2>
+        {/* Floating product card mockup */}
+        <section className="max-w-2xl mx-auto px-6 pb-20 sm:pb-28" aria-hidden="true">
+          <div className="rounded-[28px] bg-white border border-black/[0.06] shadow-[0_20px_60px_-15px_rgba(20,21,26,0.18)] p-6 sm:p-8 fade-in-card">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[#14151A]/45 uppercase tracking-wider">Available balance</span>
+              <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#14151A]/[0.05] text-[#14151A]/60">KES</span>
+            </div>
+            <p className="mt-2 text-4xl sm:text-5xl font-extrabold font-mono tabular-nums tracking-tight">48,250.00</p>
 
-            <div className="mt-10 grid sm:grid-cols-3 gap-8 sm:gap-6">
-              {STEPS.map((step) => (
-                <div key={step.n} className="flex flex-col">
-                  <span className="text-sm font-bold text-[#F2A93B] tabular-nums">{step.n}</span>
-                  <h3 className="mt-2 font-semibold text-base">{step.title}</h3>
-                  <p className="mt-1.5 text-sm text-[#0B1220]/60 leading-relaxed max-w-[26ch]">
-                    {step.body}
-                  </p>
+            <div className="mt-6 h-px bg-black/[0.06]" />
+
+            <div className="mt-5 flex flex-col gap-4">
+              {[
+                { label: 'M-Pesa deposit', sub: 'Just now', amount: '+ 12,000.00' },
+                { label: 'Sent to Wanjiru K.', sub: 'Yesterday', amount: '- 3,500.00' },
+                { label: 'Airtel Money deposit', sub: '2 days ago', amount: '+ 8,000.00' },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">{row.label}</p>
+                    <p className="text-xs text-[#14151A]/45 mt-0.5">{row.sub}</p>
+                  </div>
+                  <span className={`text-sm font-semibold font-mono ${row.amount.startsWith('+') ? 'text-[#1A7A4C]' : 'text-[#14151A]/80'}`}>
+                    {row.amount}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Trust / rails strip */}
-        <section className="max-w-6xl mx-auto px-5 sm:px-8 py-12 sm:py-14">
-          <p className="text-xs font-semibold text-[#0B1220]/40 mb-5">Supported everywhere you already move money</p>
-          <div className="flex flex-wrap gap-3">
-            {['M-Pesa', 'Airtel Money', 'Visa', 'Mastercard', 'Local bank transfer', 'International bank transfer'].map((rail) => (
-              <span
-                key={rail}
-                className="px-3.5 py-2 rounded-lg bg-white border border-black/5 text-sm font-medium text-[#0B1220]/70"
-              >
+        {/* Features */}
+        <section className="border-t border-black/[0.06] bg-white">
+          <div className="max-w-4xl mx-auto px-6 py-16 sm:py-20 grid sm:grid-cols-3 gap-10 sm:gap-8">
+            {FEATURES.map((f) => {
+              const Icon = f.icon;
+              return (
+                <div key={f.title} className="flex flex-col items-center text-center sm:items-start sm:text-left">
+                  <div className="w-10 h-10 rounded-xl bg-[#FF6B4A]/12 flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-[#FF6B4A]" />
+                  </div>
+                  <h3 className="mt-4 font-semibold text-base">{f.title}</h3>
+                  <p className="mt-1.5 text-sm text-[#14151A]/55 leading-relaxed max-w-[24ch]">{f.body}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Trust strip */}
+        <section className="max-w-4xl mx-auto px-6 py-12 sm:py-14 text-center">
+          <p className="text-xs font-semibold text-[#14151A]/35 mb-5">Works with</p>
+          <div className="flex flex-wrap justify-center gap-2.5">
+            {['M-Pesa', 'Airtel Money', 'Visa', 'Mastercard', 'Bank transfer'].map((rail) => (
+              <span key={rail} className="px-3.5 py-1.5 rounded-full bg-black/[0.04] text-sm font-medium text-[#14151A]/70">
                 {rail}
               </span>
             ))}
@@ -179,46 +155,33 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-black/5">
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#0B1220]/45">
+      <footer className="border-t border-black/[0.06]">
+        <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#14151A]/40">
           <p>&copy; {new Date().getFullYear()} BridgePay.</p>
           <div className="flex items-center gap-5">
-            <Link href="/login" className="hover:text-[#0B1220]/70 transition-colors">Sign in</Link>
-            <Link href="/register" className="hover:text-[#0B1220]/70 transition-colors">Create account</Link>
+            <Link href="/login" className="hover:text-[#14151A]/70 transition-colors">Sign in</Link>
+            <Link href="/register" className="hover:text-[#14151A]/70 transition-colors">Create account</Link>
           </div>
         </div>
       </footer>
 
       <style jsx>{`
-        .rail-chip {
+        .fade-in-card {
           opacity: 0;
-          animation: rail-in 0.5s ease-out forwards;
+          transform: translateY(12px);
+          animation: card-in 0.55s ease-out 0.1s forwards;
         }
-        .rail-line {
-          animation: rail-line-draw 0.4s 0.32s ease-out forwards;
-        }
-        @keyframes rail-in {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
+        @keyframes card-in {
           to {
             opacity: 1;
             transform: translateY(0);
           }
         }
-        @keyframes rail-line-draw {
-          to {
-            stroke-dashoffset: 0;
-          }
-        }
         @media (prefers-reduced-motion: reduce) {
-          .rail-chip,
-          .rail-line line {
-            animation: none !important;
-            opacity: 1 !important;
-            stroke-dashoffset: 0 !important;
+          .fade-in-card {
+            animation: none;
+            opacity: 1;
+            transform: none;
           }
         }
       `}</style>
