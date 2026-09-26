@@ -21,9 +21,11 @@ platform (auth, dashboard, transfers, transaction history). See
 | Backend | [BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend) (FastAPI + Postgres) |
 
 ## Timeline
-Started as a learning project with no fixed deadline — now targeting a
-launch by **Friday, September 18, 2026**. See PLAN.md section 8 for the
-day-by-day task breakdown between now and then.
+Started as a learning project with no fixed deadline. The original
+target launch date, Friday, September 18, 2026, has passed, but the
+frontend rebuild it was tracking is now complete — see Status below.
+PLAN.md section 8 has the original day-by-day breakdown, kept as a
+historical record.
 
 ## Backend readiness
 The backend ([BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend))
@@ -34,30 +36,32 @@ conversion on deposits/payouts. See PLAN.md section 3a for the exact
 request/response shapes to build against.
 
 ## Status
-9 pages are built and wired to real backend calls. The remaining 6
-(dashboard, transfer, deposit, payout, profile, transactions +
-transaction list) have a Lovable-built design to translate — that
-design is on a different framework (TanStack Start, not Next.js) so
-it's a reference to port, not code to merge; see PLAN.md section 5 for
-detail. Section 3 there has the full page-by-page spec each one needs
-to satisfy.
+All pages are built by hand against Tailwind CSS (no Lovable/Stitch
+export used) and wired to real backend calls. See PLAN.md section 3
+for the full page-by-page spec each one satisfies.
 
 | Page | Status |
 |---|---|
+| `/` (landing/marketing home) | Built — distinct navy/marigold visual identity |
 | `/login` | Built |
 | `/register` | Built |
 | `/verify-email` | Built |
 | `/forgot-password` | Built |
 | `/reset-password` | Built |
 | `/auth/google/complete` | Built |
-| `/dashboard` | Not started — Lovable design to port |
-| `/transfer` | Not started — Lovable design to port |
-| `/deposit` | Not started — Lovable design to port |
-| `/payout` | Not started — Lovable design to port |
-| `/profile` | Not started — Lovable design to port |
+| `/dashboard` | Built |
+| `/transfer` | Built |
+| `/deposit` | Built |
+| `/payout` | Built |
+| `/topup` | Built — redirects to `/deposit`, kept only so the old link doesn't break |
+| `/profile` | Built — change-password and linked-payment-methods sections are real UI, not yet wired (no backend endpoint yet) |
 | `/notifications` | Built |
-| `/transactions`, `/transactions/[id]` | List not started — Lovable design to port; detail view Built |
+| `/transactions`, `/transactions/[id]` | Built |
 | `/admin` | Built |
+
+The rest of the app still uses the original Material-style blue/teal
+tokens from `globals.css`; bringing it visually in line with the new
+`/` redesign is open (PLAN.md section 6, item 12).
 
 ## App Structure
 

@@ -6,9 +6,11 @@ payouts (M-Pesa, Stripe card, Stripe bank account, Airtel Money),
 multi-currency conversion, notifications, settings, admin, and Google
 OAuth are all built and tested. See
 [BridgePay-Backend's README](https://github.com/Mark-Musyoka/BridgePay-Backend/blob/main/README.md)
-for verified endpoint behavior. **Targeting a launch by Friday,
-September 18, 2026** — the frontend is being rebuilt from scratch to
-cover everything the backend now supports (see section 6 for the plan).
+for verified endpoint behavior. The frontend rebuild targeted a launch
+by Friday, September 18, 2026; that date has passed, but the rebuild
+itself is now complete — every page in section 3 is built. See section
+6 for what's still open (mainly backend-dependent `/profile`
+sub-features, dark mode, and a visual-consistency pass).
 
 ## 1. What this is
 The client for BridgePay — a payments platform (PayPal-style) built by
@@ -43,20 +45,22 @@ transaction history.
 
 | Page | Status | What it needs to do |
 |---|---|---|
-| `/register` | Not started | Create account. Now needs a **country dropdown** (`GET /countries`, 249 entries) — required field |
-| `/login` | Not started | Email/password, plus a **"Sign in with Google"** link (a real page navigation to `GET /auth/google/login`, not a fetch) |
-| `/auth/google/complete` | Not started | Reads `?code=` (success) or `?error=` from the query string after Google redirects back through the backend, calls `POST /auth/google/exchange` with the code to get real tokens, then completes login the same way `/login` does |
-| `/verify-email` | Not started | Confirms the token from the (mocked) verification email link; calls `POST /auth/verify-email`. Should also offer a "Resend email" action (`POST /auth/resend-verification`) |
-| `/forgot-password` | Not started | Email input, calls `POST /auth/password-reset-request` |
-| `/reset-password` | Not started | Token + new password form (token comes from the reset link's query param), calls `POST /auth/password-reset-confirm` |
-| `/dashboard` | Not started | Balance + recent transactions — needs an added unread notification count |
-| `/transfer` | Not started | Send money to another BridgePay user (email + amount). Should handle the `403` (unverified) case distinctly — a banner prompting email verification, not a generic error toast |
-| `/payout` | Not started | Send money OUT of BridgePay entirely, to a phone number (M-Pesa or Airtel Money), a card (Stripe), or a bank account (Stripe, Kenyan local or international). Requires the sender's email always (confirmation), plus a destination picker with the destination-specific fields. Stripe card path needs a card **token**; the bank-account path needs a Stripe bank-account **token** — never raw numbers (tokenized via Stripe.js/Elements before it ever reaches our backend). See section 3a. When the response includes `exchange_rate`/`converted_amount` (non-null), show both the amount the user typed and what was actually deducted in the account's currency |
-| `/deposit` | Not started | Real deposit via card (Stripe Elements + PaymentIntent confirmation), M-Pesa STK Push, or Airtel Money Collections (phone number + amount, then "check your phone" messaging for both mobile-money providers). Same `exchange_rate`/`converted_amount` display note as `/payout` above |
-| `/profile` | Not started | Needs `GET /users/me`, `PATCH /users/me` (changing email should show a "please re-verify" notice), `POST /users/me/change-password` (current + new), and a linked payment methods section (list, add Stripe card/M-Pesa number, remove) |
-| `/notifications` | Not started | List with mark-as-read; the dashboard's unread count should link here |
-| `/transactions`, `/transactions/[id]` | Not started | Full paginated transaction history |
-| `/admin` | Not started | Views all transactions (`?user_email=` filter) and the full audit log (`?action=` filter) — no fraud-flagging UI, since the backend has no `is_flagged` concept to persist it against |
+| `/` | Built | Landing/marketing home page, redesigned with a distinct navy/marigold visual identity (rail-to-wallet hero) — see section 5 |
+| `/register` | Built | Create account, with a **country dropdown** (`GET /countries`, 249 entries) |
+| `/login` | Built | Email/password, plus a **"Sign in with Google"** link (`GET /auth/google/login`) |
+| `/auth/google/complete` | Built | Reads `?code=`/`?error=` after the Google redirect, calls `POST /auth/google/exchange`, completes login like `/login` |
+| `/verify-email` | Built | Confirms the token from the verification email link (`POST /auth/verify-email`), with a "Resend email" action (`POST /auth/resend-verification`) |
+| `/forgot-password` | Built | Email input, calls `POST /auth/password-reset-request` |
+| `/reset-password` | Built | Token + new password form, calls `POST /auth/password-reset-confirm` |
+| `/dashboard` | Built | Balance + recent transactions |
+| `/transfer` | Built | Send money to another BridgePay user (email + amount) |
+| `/payout` | Built | Send money OUT of BridgePay — phone (M-Pesa/Airtel Money), Stripe card, or bank account (Kenyan local or international) |
+| `/deposit` | Built | Real deposit via card (Stripe Elements), M-Pesa STK Push, or Airtel Money Collections |
+| `/topup` | Built | Redirects to `/deposit` — kept only so the old link doesn't break; not a separate flow |
+| `/profile` | Built | Account overview (`GET /users/me`), resend-verification. The change-password form and linked-payment-methods section are real UI but not yet wired — the backend has no `PATCH /users/me`, `POST /users/me/change-password`, or payment-methods endpoints yet. Both surface a clear "not connected yet" message rather than failing silently |
+| `/notifications` | Built | List with mark-as-read |
+| `/transactions`, `/transactions/[id]` | Built | Paginated transaction history (client-side search/status/type filtering plus "load more" pagination — the backend's `GET /transactions` has no matching query params yet, only `page`/`page_size`) |
+| `/admin` | Built | Views all transactions (`?user_email=` filter) and the full audit log (`?action=` filter) — no fraud-flagging UI, since the backend has no `is_flagged` concept to persist it against |
 
 ## 3a. Backend API contract (as built)
 Exact request/response shapes to build `lib/api.ts` against. **All paths
@@ -351,18 +355,23 @@ GET /admin/audit-logs?page=1&page_size=20&action=          (admin only)
   This isn't optional hardening, it's how the backend's endpoints are
   actually shaped — they only accept `pm_...`/`tok_...` ids.
 
-## 5. Current state (as of this rebuild)
-Every page previously built on the Stitch UI branch — `(auth)/login`,
-`(auth)/register`, `/dashboard`, `/transfer`, `/transactions` +
-`/transactions/[id]`, `/admin`, `/topup`, `/profile` — has had its page
-content cleared (each is now an empty stub component) so it can be
-rebuilt against the backend's current, full surface rather than
-patched incrementally. Folders/stub files now also exist for every
-page that didn't have one yet: `/verify-email`, `/forgot-password`,
-`/reset-password`, `/auth/google/complete`, `/deposit`, `/payout`,
-`/notifications`. `/topup`'s folder is left in place (also emptied)
-alongside the new `/deposit` — removing it and updating the sidebar's
-nav link is part of the `/deposit` rebuild itself, not done here.
+## 5. Current state
+All pages listed in section 3 are built by hand against Tailwind CSS
+(no Lovable/Stitch export) and have real content — none are empty
+stubs anymore. The last three to be finished were `/profile`,
+`/transactions`, and the `/topup` → `/deposit` redirect. The `/`
+landing page has since been redesigned with its own distinct visual
+identity (navy/marigold palette, a rail-to-wallet hero visual), rather
+than reusing the app's Material-style tokens.
+
+Two sub-features remain UI-only pending backend work: `/profile`'s
+change-password form and its linked-payment-methods section (see the
+`/profile` row in section 3 for the missing endpoints).
+
+The rest of the app (dashboard, transfer, deposit, payout, etc.) still
+uses the original Material-style blue/teal tokens from `globals.css` —
+a visual consistency pass to bring them in line with the new landing
+page's identity is still open (see item 12 below).
 
 Untouched, since none of it is page content: `AuthContext`/`ToastContext`,
 `lib/api.ts`, `lib/auth.ts` (httpOnly cookie helpers), `lib/utils.ts`,
@@ -374,20 +383,20 @@ table in section 3 for what each one actually needs to do; section 3a
 for the exact request/response shapes, including the newer Airtel
 Money and bank-account payout endpoints.
 
-| # | Item | Depends on |
+| # | Item | Status |
 |---|---|---|
-| 1 | Country dropdown on `/register` | `GET /countries` |
-| 2 | `/auth/google/complete` page + "Sign in with Google" link on `/login` | — |
-| 3 | `/verify-email` (+ resend action), `/forgot-password`, `/reset-password` | — |
-| 4 | `/profile`, including the linked payment methods section | — |
-| 5 | Payment method linking UI (Stripe Elements card form, M-Pesa phone form) | Item 4 |
-| 6 | `/deposit` — Stripe card, M-Pesa, and Airtel Money, replacing `/topup` | Item 5 (a linked card helps but isn't strictly required for M-Pesa/Airtel) |
-| 7 | `/payout` — M-Pesa, Stripe card, bank account, and Airtel Money | Item 5 |
-| 8 | `/notifications` page + unread-count badge on `/dashboard` (the header's notification bell currently just shows a toast — wiring it to a real unread count and a link to `/notifications` is part of this item) | — |
-| 9 | `/dashboard`, `/transfer`, `/transactions` + `/transactions/[id]`, `/admin` | — |
-| 10 | Landing/Welcome screen at `/` — introduces BridgePay before Login/Register, with "Get Started" (→ Register) and "Log in" (→ Login) | — |
-| 11 | Dark mode toggle — needs a real theming pass first (see note below), not just a switch | — |
-| 12 | Polish pass — loading/empty states, error boundaries, the `403`-unverified banner on `/transfer` and `/payout` | Items 1-11 |
+| 1 | Country dropdown on `/register` | Done |
+| 2 | `/auth/google/complete` page + "Sign in with Google" link on `/login` | Done |
+| 3 | `/verify-email` (+ resend action), `/forgot-password`, `/reset-password` | Done |
+| 4 | `/profile`, including the linked payment methods section | Page built; payment-methods section and change-password form are UI-only, blocked on backend endpoints (see section 3) |
+| 5 | Payment method linking UI (Stripe Elements card form, M-Pesa phone form) | Blocked — no backend endpoint to link to yet |
+| 6 | `/deposit` — Stripe card, M-Pesa, and Airtel Money, replacing `/topup` | Done — `/topup` now redirects to `/deposit` |
+| 7 | `/payout` — M-Pesa, Stripe card, bank account, and Airtel Money | Done |
+| 8 | `/notifications` page + unread-count badge on `/dashboard` | Done |
+| 9 | `/dashboard`, `/transfer`, `/transactions` + `/transactions/[id]`, `/admin` | Done |
+| 10 | Landing/Welcome screen at `/` — introduces BridgePay before Login/Register, with "Get Started" (→ Register) and "Log in" (→ Login) | Done — redesigned with its own visual identity, not just a functional stub |
+| 11 | Dark mode toggle — needs a real theming pass first (see note below), not just a switch | Not started |
+| 12 | Polish/consistency pass — bring the rest of the app's visual style in line with the new `/` redesign; loading/empty states, error boundaries, the `403`-unverified banner on `/transfer` and `/payout` | Partially done — `/` is polished; the rest of the app still uses the original Material-style tokens |
 
 **Nav responsiveness — done:** `BottomNav` (mobile) and `Sidebar`
 (tablet/desktop, `md` breakpoint and up) now share one canonical item
@@ -419,12 +428,14 @@ app, but the real "introduce BridgePay" job now belongs to that repo.
 - The standalone marketing domain described above — lives in
   BridgePay-Web, not part of this repo's build
 
-## 8. Path to launch — task division (target: Friday, September 18, 2026)
-**Note:** this split was written assuming the partial progress described
-in the old section 5 (since replaced — see above). With every page now
-reset to an empty stub, the "this week" assignments below no longer
-match reality and need re-splitting by whoever's actually picking up
-each item; left as-is here rather than guessing a new division.
+## 8. Path to launch — task division (historical; original target was Friday, September 18, 2026)
+**Note:** this section is now historical. The Sept 18 target has passed,
+and all pages listed in section 3 are built — see sections 5 and 6 for
+current status. The day-by-day split below was written against an
+earlier snapshot (all pages reset to empty stubs) and was never
+followed as written since the pages ended up built by hand instead of
+via the Lovable/Stitch designs it assumed; left in place as a record of
+the original plan, not as an active assignment.
 
 A suggested split, not a rigid assignment — adjust based on who's
 actually free when. Backend is done; everything left is frontend +
@@ -456,23 +467,23 @@ credentials + deployment.
 src/
   app/
     (auth)/
-      login/page.tsx               # empty stub
-      register/page.tsx            # empty stub
-      verify-email/page.tsx        # empty stub
-      forgot-password/page.tsx     # empty stub
-      reset-password/page.tsx      # empty stub
-      auth/google/complete/page.tsx  # empty stub
+      login/page.tsx               # built
+      register/page.tsx            # built
+      verify-email/page.tsx        # built
+      forgot-password/page.tsx     # built
+      reset-password/page.tsx      # built
+      auth/google/complete/page.tsx  # built
     (dashboard)/
-      dashboard/page.tsx           # empty stub
-      transfer/page.tsx            # empty stub
-      deposit/page.tsx             # empty stub — replaces topup/, not yet removed
-      payout/page.tsx              # empty stub
-      notifications/page.tsx       # empty stub
-      transactions/page.tsx        # empty stub
-      transactions/[id]/page.tsx   # empty stub
-      admin/page.tsx                # empty stub
-      topup/page.tsx                 # empty stub — superseded by deposit/, kept until nav is updated
-      profile/page.tsx                # empty stub
+      dashboard/page.tsx           # built
+      transfer/page.tsx            # built
+      deposit/page.tsx             # built
+      payout/page.tsx              # built
+      notifications/page.tsx       # built
+      transactions/page.tsx        # built
+      transactions/[id]/page.tsx   # built
+      admin/page.tsx                # built
+      topup/page.tsx                 # redirects to deposit/ — kept so the old link doesn't break
+      profile/page.tsx                # built; payment-methods + change-password sections are UI-only pending backend endpoints
     api/
       auth/
         login/route.ts      # sets httpOnly cookies after login
