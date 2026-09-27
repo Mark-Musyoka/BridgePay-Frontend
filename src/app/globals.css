@@ -1,59 +1,65 @@
 @import "tailwindcss";
 
+/* Design tokens — warm charcoal/coral palette, matching the "/" home
+   page redesign and the new /login, /register pages. Previously a cool
+   navy/blue Material scheme; only the VALUES changed here, every token
+   NAME is unchanged, so every page/component using bg-primary,
+   text-on-surface-variant, bg-secondary-container, etc. re-themes
+   automatically with no markup changes needed. */
 @theme {
-  --color-primary: #00236f;
-  --color-primary-container: #1e3a8a;
-  --color-on-primary: #ffffff;
-  --color-on-primary-container: #90a8ff;
-  --color-primary-fixed: #dce1ff;
-  --color-primary-fixed-dim: #b6c4ff;
-  --color-on-primary-fixed: #00164e;
-  --color-on-primary-fixed-variant: #264191;
+  --color-primary: #14151a;
+  --color-primary-container: #2a2b31;
+  --color-on-primary: #faf9f6;
+  --color-on-primary-container: #f3b8a8;
+  --color-primary-fixed: #fdeae3;
+  --color-primary-fixed-dim: #f9cfc0;
+  --color-on-primary-fixed: #14151a;
+  --color-on-primary-fixed-variant: #b5492e;
 
-  --color-secondary: #006a61;
-  --color-secondary-container: #86f2e4;
+  --color-secondary: #1a7a4c;
+  --color-secondary-container: #dceee1;
   --color-on-secondary: #ffffff;
-  --color-on-secondary-container: #006f66;
-  --color-secondary-fixed: #89f5e7;
-  --color-secondary-fixed-dim: #6bd8cb;
-  --color-on-secondary-fixed: #00201d;
-  --color-on-secondary-fixed-variant: #005049;
+  --color-on-secondary-container: #145c39;
+  --color-secondary-fixed: #c9e9d5;
+  --color-secondary-fixed-dim: #a6dabd;
+  --color-on-secondary-fixed: #0d3b25;
+  --color-on-secondary-fixed-variant: #1f6b47;
 
-  --color-tertiary: #442100;
-  --color-tertiary-container: #653400;
-  --color-tertiary-fixed: #ffdcc3;
-  --color-tertiary-fixed-dim: #ffb77d;
+  --color-tertiary: #7a4a14;
+  --color-tertiary-container: #92591a;
+  --color-tertiary-fixed: #fbe4c8;
+  --color-tertiary-fixed-dim: #f3c98f;
   --color-on-tertiary: #ffffff;
-  --color-on-tertiary-fixed: #2f1500;
-  --color-on-tertiary-fixed-variant: #6e3900;
-  --color-on-tertiary-container: #fc922b;
+  --color-on-tertiary-fixed: #4a2d0c;
+  --color-on-tertiary-fixed-variant: #6b4012;
+  --color-on-tertiary-container: #fba43b;
 
-  --color-background: #faf8ff;
-  --color-surface: #faf8ff;
-  --color-surface-dim: #d2d9f4;
-  --color-surface-bright: #faf8ff;
+  --color-background: #faf9f6;
+  --color-surface: #faf9f6;
+  --color-surface-dim: #e7e4dd;
+  --color-surface-bright: #faf9f6;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f2f3ff;
-  --color-surface-container: #eaedff;
-  --color-surface-container-high: #e2e7ff;
-  --color-surface-container-highest: #dae2fd;
-  --color-surface-variant: #dae2fd;
-  --color-surface-tint: #4059aa;
+  --color-surface-container-low: #f4f2ee;
+  --color-surface-container: #efede7;
+  --color-surface-container-high: #e9e6df;
+  --color-surface-container-highest: #e2dfd7;
+  --color-surface-variant: #e2dfd7;
+  --color-surface-tint: #14151a;
 
-  --color-on-surface: #131b2e;
-  --color-on-surface-variant: #444651;
-  --color-on-background: #131b2e;
-  --color-inverse-surface: #283044;
-  --color-inverse-on-surface: #eef0ff;
-  --color-inverse-primary: #b6c4ff;
+  --color-on-surface: #14151a;
+  --color-on-surface-variant: #5c5d63;
+  --color-on-background: #14151a;
+  --color-inverse-surface: #2a2b31;
+  --color-inverse-on-surface: #f4f2ee;
+  --color-inverse-primary: #f9cfc0;
 
-  --color-outline: #757682;
-  --color-outline-variant: #c5c5d3;
+  --color-outline: #8a8b90;
+  --color-outline-variant: #dad7cf;
 
-  --color-error: #ba1a1a;
-  --color-error-container: #ffdad6;
+  --color-error: #d64545;
+  --color-error-container: #fbdcdc;
   --color-on-error: #ffffff;
-  --color-on-error-container: #93000a;
+  --color-on-error-container: #7a1f1f;
 
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body-md: 'Plus Jakarta Sans', sans-serif;
@@ -61,8 +67,8 @@
 }
 
 :root {
-  --background: #faf8ff;
-  --on-surface: #131b2e;
+  --background: #faf9f6;
+  --on-surface: #14151a;
 }
 
 body {

@@ -63,7 +63,7 @@ function StripeCardLinkForm({ clientSecret, onSuccess }: { clientSecret: string;
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="p-3.5 rounded-xl border border-outline-variant bg-surface-container-lowest">
         <CardElement
-          options={{ style: { base: { fontSize: '14px', color: '#131b2e', '::placeholder': { color: '#444651' } } } }}
+          options={{ style: { base: { fontSize: '14px', color: '#14151a', '::placeholder': { color: '#5c5d63' } } } }}
         />
       </div>
       {error && <p className="text-xs text-error">{error}</p>}

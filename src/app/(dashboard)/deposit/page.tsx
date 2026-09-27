@@ -66,7 +66,7 @@ function StripeCardForm({
         <CardElement
           options={{
             style: {
-              base: { fontSize: '14px', color: '#131b2e', '::placeholder': { color: '#444651' } },
+              base: { fontSize: '14px', color: '#14151a', '::placeholder': { color: '#5c5d63' } },
             },
           }}
         />

@@ -23,13 +23,13 @@ export function BalanceCard() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-primary via-primary-container to-[#0c1b4d] p-6 sm:p-7 text-on-primary shadow-xl">
+    <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-primary via-primary-container to-[#0a0a0d] p-6 sm:p-7 text-on-primary shadow-xl">
       {/* Subtle Ambient Graphic Backdrop */}
       <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-surface-tint/20 blur-2xl pointer-events-none" />
       <div className="absolute right-4 bottom-2 opacity-15 pointer-events-none">
         <svg fill="none" height="80" viewBox="0 0 100 60" width="120" xmlns="http://www.w3.org/2000/svg">
           <path d="M10 50C25 20 45 40 60 15C75 -10 95 30 110 5" stroke="#ffffff" strokeLinecap="round" strokeWidth="6" />
-          <circle cx="60" cy="15" fill="#86f2e4" r="7" />
+          <circle cx="60" cy="15" fill="#ff6b4a" r="7" />
         </svg>
       </div>
 
