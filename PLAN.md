@@ -57,7 +57,7 @@ transaction history.
 | `/payout` | Built | Send money OUT of BridgePay — phone (M-Pesa/Airtel Money), Stripe card, or bank account (Kenyan local or international) |
 | `/deposit` | Built | Real deposit via card (Stripe Elements), M-Pesa STK Push, or Airtel Money Collections |
 | `/topup` | Built | Redirects to `/deposit` — kept only so the old link doesn't break; not a separate flow |
-| `/profile` | Built | Account overview (`GET /users/me`), resend-verification. The change-password form and linked-payment-methods section are real UI but not yet wired — the backend has no `PATCH /users/me`, `POST /users/me/change-password`, or payment-methods endpoints yet. Both surface a clear "not connected yet" message rather than failing silently |
+| `/profile` | Built | Account overview (`GET /users/me`), inline profile editing (`PATCH /users/me`), change password (`POST /users/me/change-password`), and linked payment methods — list, add M-Pesa number, add card via Stripe SetupIntent, remove (`GET/DELETE /payment-methods`, `POST /payment-methods/mpesa`, `POST /payment-methods/stripe/setup-intent` + `/confirm`) |
 | `/notifications` | Built | List with mark-as-read |
 | `/transactions`, `/transactions/[id]` | Built | Paginated transaction history (client-side search/status/type filtering plus "load more" pagination — the backend's `GET /transactions` has no matching query params yet, only `page`/`page_size`) |
 | `/admin` | Built | Views all transactions (`?user_email=` filter) and the full audit log (`?action=` filter) — no fraud-flagging UI, since the backend has no `is_flagged` concept to persist it against |
@@ -364,9 +364,12 @@ landing page has since been redesigned with its own distinct visual
 identity (navy/marigold palette, a rail-to-wallet hero visual), rather
 than reusing the app's Material-style tokens.
 
-Two sub-features remain UI-only pending backend work: `/profile`'s
-change-password form and its linked-payment-methods section (see the
-`/profile` row in section 3 for the missing endpoints).
+Two sub-features that were briefly UI-only pending backend work are now
+fully wired: it turned out the backend already had `PATCH /users/me`,
+`POST /users/me/change-password`, and a complete payment-methods module
+(list, Stripe SetupIntent card linking, M-Pesa linking, delete) —
+`lib/api.ts` and the Profile page just hadn't been updated to use them.
+Both now call the real endpoints.
 
 The rest of the app (dashboard, transfer, deposit, payout, etc.) still
 uses the original Material-style blue/teal tokens from `globals.css` —
@@ -388,8 +391,8 @@ Money and bank-account payout endpoints.
 | 1 | Country dropdown on `/register` | Done |
 | 2 | `/auth/google/complete` page + "Sign in with Google" link on `/login` | Done |
 | 3 | `/verify-email` (+ resend action), `/forgot-password`, `/reset-password` | Done |
-| 4 | `/profile`, including the linked payment methods section | Page built; payment-methods section and change-password form are UI-only, blocked on backend endpoints (see section 3) |
-| 5 | Payment method linking UI (Stripe Elements card form, M-Pesa phone form) | Blocked — no backend endpoint to link to yet |
+| 4 | `/profile`, including the linked payment methods section | Done — profile editing, change password, and payment methods (M-Pesa + Stripe card) are all wired to real endpoints |
+| 5 | Payment method linking UI (Stripe Elements card form, M-Pesa phone form) | Done |
 | 6 | `/deposit` — Stripe card, M-Pesa, and Airtel Money, replacing `/topup` | Done — `/topup` now redirects to `/deposit` |
 | 7 | `/payout` — M-Pesa, Stripe card, bank account, and Airtel Money | Done |
 | 8 | `/notifications` page + unread-count badge on `/dashboard` | Done |
@@ -483,7 +486,7 @@ src/
       transactions/[id]/page.tsx   # built
       admin/page.tsx                # built
       topup/page.tsx                 # redirects to deposit/ — kept so the old link doesn't break
-      profile/page.tsx                # built; payment-methods + change-password sections are UI-only pending backend endpoints
+      profile/page.tsx                # built — profile editing, change password, payment methods all wired to real endpoints
     api/
       auth/
         login/route.ts      # sets httpOnly cookies after login

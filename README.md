@@ -54,7 +54,7 @@ for the full page-by-page spec each one satisfies.
 | `/deposit` | Built |
 | `/payout` | Built |
 | `/topup` | Built — redirects to `/deposit`, kept only so the old link doesn't break |
-| `/profile` | Built — change-password and linked-payment-methods sections are real UI, not yet wired (no backend endpoint yet) |
+| `/profile` | Built — profile editing, change password, and payment methods (M-Pesa + Stripe card) all wired to real backend endpoints |
 | `/notifications` | Built |
 | `/transactions`, `/transactions/[id]` | Built |
 | `/admin` | Built |
