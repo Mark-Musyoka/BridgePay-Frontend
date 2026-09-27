@@ -399,7 +399,7 @@ Money and bank-account payout endpoints.
 | 9 | `/dashboard`, `/transfer`, `/transactions` + `/transactions/[id]`, `/admin` | Done |
 | 10 | Landing/Welcome screen at `/` — introduces BridgePay before Login/Register, with "Get Started" (→ Register) and "Log in" (→ Login) | Done — redesigned with its own visual identity, not just a functional stub |
 | 11 | Dark mode toggle — needs a real theming pass first (see note below), not just a switch | Not started |
-| 12 | Polish/consistency pass — bring the rest of the app's visual style in line with the new `/` redesign; loading/empty states, error boundaries, the `403`-unverified banner on `/transfer` and `/payout` | Partially done — `/` is polished; the rest of the app still uses the original Material-style tokens |
+| 12 | Polish/consistency pass — bring the rest of the app's visual style in line with the new `/` redesign; loading/empty states, error boundaries | Partially done — `/` is polished, the `(dashboard)` route group now has a real auth guard (redirects to `/login` if not signed in), and `/transfer`/`/payout` show a proper unverified-email banner instead of generic error text. The rest of the app still uses the original Material-style tokens |
 
 **Nav responsiveness — done:** `BottomNav` (mobile) and `Sidebar`
 (tablet/desktop, `md` breakpoint and up) now share one canonical item
