@@ -15,6 +15,12 @@ import type {
   User,
   Account,
   Country,
+  UpdateProfileRequest,
+  ChangePasswordRequest,
+  PaymentMethod,
+  StripeSetupIntentResponse,
+  StripeConfirmCardRequest,
+  LinkMpesaRequest,
   TransferRequest,
   Transaction,
   PaginatedTransactions,
@@ -244,6 +250,62 @@ export async function getCountries(): Promise<Country[]> {
  */
 export async function getMe(token: string): Promise<User> {
   return request<User>("/api/v1/users/me", { method: "GET" }, token);
+}
+
+/**
+ * PATCH /users/me
+ * Updates the current user's profile. All fields optional — only what's
+ * provided gets updated. Changing email does NOT require re-verification
+ * per the backend's UpdateProfileRequest, but is_verified may still be
+ * worth re-checking client-side after a successful email change.
+ */
+export async function updateProfile(body: UpdateProfileRequest, token: string): Promise<User> {
+  return request<User>("/api/v1/users/me", { method: "PATCH", body: JSON.stringify(body) }, token);
+}
+
+/**
+ * POST /users/me/change-password
+ * 204 on success. 400 if current_password is wrong.
+ */
+export async function changePassword(body: ChangePasswordRequest, token: string): Promise<void> {
+  return request<void>("/api/v1/users/me/change-password", { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+// ─── Payment method endpoints ────────────────
+
+/** GET /payment-methods — every method linked to the current user. */
+export async function getPaymentMethods(token: string): Promise<PaymentMethod[]> {
+  return request<PaymentMethod[]>("/api/v1/payment-methods", { method: "GET" }, token);
+}
+
+/**
+ * POST /payment-methods/stripe/setup-intent
+ * Starts linking a card — returns a SetupIntent client_secret for
+ * Stripe.js/Elements to confirm client-side (never send raw card
+ * details to our own backend). Follow with confirmStripeCard once
+ * Stripe returns a PaymentMethod id.
+ */
+export async function createStripeSetupIntent(token: string): Promise<StripeSetupIntentResponse> {
+  return request<StripeSetupIntentResponse>("/api/v1/payment-methods/stripe/setup-intent", { method: "POST" }, token);
+}
+
+/** POST /payment-methods/stripe/confirm — saves the confirmed card as a linked payment method. */
+export async function confirmStripeCard(body: StripeConfirmCardRequest, token: string): Promise<PaymentMethod> {
+  return request<PaymentMethod>(
+    "/api/v1/payment-methods/stripe/confirm",
+    { method: "POST", body: JSON.stringify(body) },
+    token,
+  );
+}
+
+/** POST /payment-methods/mpesa — links an M-Pesa number. 400 if already linked, 422 if invalid. */
+export async function linkMpesa(body: LinkMpesaRequest, token: string): Promise<PaymentMethod> {
+  return request<PaymentMethod>("/api/v1/payment-methods/mpesa", { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+/** DELETE /payment-methods/{id} — 204 on success, 404 if not found (or not this user's). */
+export async function deletePaymentMethod(id: string, token: string): Promise<void> {
+  return request<void>(`/api/v1/payment-methods/${id}`, { method: "DELETE" }, token);
 }
 
 // ─── Account endpoints ──────────────────────
@@ -482,6 +544,25 @@ async function proxyFetch<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   getMe: () => proxyFetch<User>("/api/me"),
   getAccount: () => proxyFetch<Account>("/api/account"),
+
+  updateProfile: (body: UpdateProfileRequest) =>
+    proxyFetch<User>("/api/me", { method: "PATCH", body: JSON.stringify(body) }),
+
+  changePassword: (body: ChangePasswordRequest) =>
+    proxyFetch<void>("/api/users/change-password", { method: "POST", body: JSON.stringify(body) }),
+
+  getPaymentMethods: () => proxyFetch<PaymentMethod[]>("/api/payment-methods"),
+
+  createStripeSetupIntent: () =>
+    proxyFetch<StripeSetupIntentResponse>("/api/payment-methods/stripe/setup-intent", { method: "POST" }),
+
+  confirmStripeCard: (body: StripeConfirmCardRequest) =>
+    proxyFetch<PaymentMethod>("/api/payment-methods/stripe/confirm", { method: "POST", body: JSON.stringify(body) }),
+
+  linkMpesa: (body: LinkMpesaRequest) =>
+    proxyFetch<PaymentMethod>("/api/payment-methods/mpesa", { method: "POST", body: JSON.stringify(body) }),
+
+  deletePaymentMethod: (id: string) => proxyFetch<void>(`/api/payment-methods/${id}`, { method: "DELETE" }),
 
   createTransfer: (body: TransferRequest) =>
     proxyFetch<Transaction>("/api/transfers", { method: "POST", body: JSON.stringify(body) }),

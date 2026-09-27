@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getMe, ApiRequestError } from "@/lib/api";
+import { getMe, updateProfile, ApiRequestError } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth";
 
 /**
@@ -16,6 +16,25 @@ export async function GET() {
 
   try {
     const user = await getMe(token);
+    return NextResponse.json(user, { status: 200 });
+  } catch (error) {
+    if (error instanceof ApiRequestError) {
+      return NextResponse.json({ detail: error.message }, { status: error.status });
+    }
+    return NextResponse.json({ detail: "An unexpected error occurred" }, { status: 500 });
+  }
+}
+
+/** Server-side proxy for PATCH /users/me — profile edits (name/email/country). */
+export async function PATCH(request: Request) {
+  const token = await getAccessToken();
+  if (!token) {
+    return NextResponse.json({ detail: "Not authenticated" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const user = await updateProfile(body, token);
     return NextResponse.json(user, { status: 200 });
   } catch (error) {
     if (error instanceof ApiRequestError) {

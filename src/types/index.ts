@@ -46,6 +46,51 @@ export interface Country {
 export type RegisterResponse = User;
 export type UserResponse = User;
 
+/** PATCH /users/me — request body. All fields optional; only what's provided is updated. */
+export interface UpdateProfileRequest {
+  full_name?: string;
+  email?: string;
+  country?: string;
+}
+
+/** POST /users/me/change-password — request body. 204 on success. */
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
+// ─── Payment methods ─────────────────────────
+
+export type PaymentMethodProvider = "stripe" | "mpesa";
+export type PaymentMethodType = "card" | "mobile_wallet";
+
+/** GET /payment-methods — 200 response item */
+export interface PaymentMethod {
+  id: string;
+  provider: PaymentMethodProvider;
+  type: PaymentMethodType;
+  masked_details: string;
+  is_default: boolean;
+  created_at: string;
+}
+
+/** POST /payment-methods/stripe/setup-intent — 200 response */
+export interface StripeSetupIntentResponse {
+  client_secret: string;
+}
+
+/** POST /payment-methods/stripe/confirm — request body */
+export interface StripeConfirmCardRequest {
+  payment_method_id: string; // Stripe PaymentMethod id (pm_...)
+  set_as_default?: boolean;
+}
+
+/** POST /payment-methods/mpesa — request body */
+export interface LinkMpesaRequest {
+  phone_number: string;
+  set_as_default?: boolean;
+}
+
 /** POST /auth/login — 200 response */
 export interface LoginResponse {
   access_token: string;
