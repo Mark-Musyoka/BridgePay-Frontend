@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Icons } from '@/components/ui/Icons';
+import { VerificationRequiredBanner } from '@/components/VerificationRequiredBanner';
 import { formatCurrency } from '@/lib/utils';
 import type { Country } from '@/types';
 
@@ -170,7 +171,7 @@ function StripeBankPayoutForm({
 }
 
 export default function PayoutPage() {
-  const { account } = useAuth();
+  const { account, user } = useAuth();
   const [method, setMethod] = useState<Method | null>(null);
   const [recipientEmail, setRecipientEmail] = useState('');
   const [amount, setAmount] = useState('');
@@ -179,6 +180,7 @@ export default function PayoutPage() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [wasBlockedByVerification, setWasBlockedByVerification] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
@@ -192,13 +194,14 @@ export default function PayoutPage() {
 
   const numericAmount = parseFloat(amount);
   const isValidAmount = !isNaN(numericAmount) && numericAmount > 0;
-  const canSubmitMobileMoney = isValidAmount && !!phone && !!recipientEmail;
+  const canSubmitMobileMoney = isValidAmount && !!phone && !!recipientEmail && !!user?.is_verified;
 
   const handleMobileMoneyPayout = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmitMobileMoney) return;
     setIsSubmitting(true);
     setError(null);
+    setWasBlockedByVerification(false);
     try {
       if (method === 'mpesa') {
         await api.createMpesaPayout({ phone_number: phone, recipient_email: recipientEmail, amount: numericAmount });
@@ -207,7 +210,11 @@ export default function PayoutPage() {
       }
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'Could not complete this payout.');
+      if (err instanceof ApiRequestError && err.status === 403) {
+        setWasBlockedByVerification(true);
+      } else {
+        setError(err instanceof ApiRequestError ? err.message : 'Could not complete this payout.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -255,11 +262,13 @@ export default function PayoutPage() {
             return (
               <button
                 key={m.id}
+                disabled={!user?.is_verified}
                 onClick={() => {
                   setMethod(m.id);
                   setError(null);
+                  setWasBlockedByVerification(false);
                 }}
-                className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-medium transition-colors ${
+                className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   method === m.id
                     ? 'bg-primary text-on-primary border-primary'
                     : 'bg-surface-container-low text-on-surface-variant border-outline-variant hover:border-outline'
@@ -271,6 +280,8 @@ export default function PayoutPage() {
             );
           })}
         </div>
+
+        {(!user?.is_verified || wasBlockedByVerification) && <VerificationRequiredBanner />}
 
         {method && (
           <Input

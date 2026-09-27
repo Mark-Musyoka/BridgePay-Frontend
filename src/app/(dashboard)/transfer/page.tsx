@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Icons } from '@/components/ui/Icons';
+import { VerificationRequiredBanner } from '@/components/VerificationRequiredBanner';
 import { formatCurrency } from '@/lib/utils';
 
 type Step = 'form' | 'review' | 'success';
@@ -20,6 +21,7 @@ export default function TransferPage() {
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [wasBlockedByVerification, setWasBlockedByVerification] = useState(false);
 
   const numericAmount = parseFloat(amount);
   const isValidAmount = !isNaN(numericAmount) && numericAmount > 0;
@@ -32,16 +34,21 @@ export default function TransferPage() {
 
   const handleConfirm = async () => {
     setError(null);
+    setWasBlockedByVerification(false);
     setIsSubmitting(true);
     try {
       await api.createTransfer({ to_email: toEmail, amount: numericAmount, reference_note: note || undefined });
       setStep('success');
     } catch (err) {
-      setError(
-        err instanceof ApiRequestError
-          ? err.message
-          : 'Could not complete this transfer. Check the recipient email and try again.',
-      );
+      if (err instanceof ApiRequestError && err.status === 403) {
+        setWasBlockedByVerification(true);
+      } else {
+        setError(
+          err instanceof ApiRequestError
+            ? err.message
+            : 'Could not complete this transfer. Check the recipient email and try again.',
+        );
+      }
       setStep('form');
     } finally {
       setIsSubmitting(false);
@@ -137,6 +144,8 @@ export default function TransferPage() {
         </div>
 
         <form onSubmit={handleReview} className="flex flex-col gap-4">
+          {(!user?.is_verified || wasBlockedByVerification) && <VerificationRequiredBanner />}
+
           <Input
             label="Recipient email"
             type="email"
@@ -145,6 +154,7 @@ export default function TransferPage() {
             value={toEmail}
             onChange={(e) => setToEmail(e.target.value)}
             helperText="Must be a registered BridgePay user"
+            disabled={!user?.is_verified}
             required
           />
 
@@ -158,6 +168,7 @@ export default function TransferPage() {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             helperText={account ? `Available balance: ${formatCurrency(account.balance, account.currency)}` : undefined}
+            disabled={!user?.is_verified}
             required
           />
 
@@ -167,11 +178,12 @@ export default function TransferPage() {
             placeholder="What's this for?"
             value={note}
             onChange={(e) => setNote(e.target.value)}
+            disabled={!user?.is_verified}
           />
 
           {error && <p className="text-xs text-error">{error}</p>}
 
-          <Button type="submit" className="w-full mt-1" disabled={!toEmail || !isValidAmount}>
+          <Button type="submit" className="w-full mt-1" disabled={!toEmail || !isValidAmount || !user?.is_verified}>
             Review transfer
           </Button>
         </form>
