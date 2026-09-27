@@ -59,9 +59,10 @@ for the full page-by-page spec each one satisfies.
 | `/transactions`, `/transactions/[id]` | Built |
 | `/admin` | Built |
 
-The rest of the app still uses the original Material-style blue/teal
-tokens from `globals.css`; bringing it visually in line with the new
-`/` redesign is open (PLAN.md section 6, item 12).
+All pages now share the same charcoal/warm-white/coral visual identity
+(`globals.css`'s design tokens were retuned; every page inherits it
+automatically since they use semantic tokens rather than hardcoded
+colors).
 
 ## App Structure
 

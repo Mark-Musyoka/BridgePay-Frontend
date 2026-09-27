@@ -371,10 +371,14 @@ fully wired: it turned out the backend already had `PATCH /users/me`,
 `lib/api.ts` and the Profile page just hadn't been updated to use them.
 Both now call the real endpoints.
 
-The rest of the app (dashboard, transfer, deposit, payout, etc.) still
-uses the original Material-style blue/teal tokens from `globals.css` —
-a visual consistency pass to bring them in line with the new landing
-page's identity is still open (see item 12 below).
+The rest of the app now shares `/`'s visual identity too: `globals.css`'s
+design tokens were retuned from the original navy/teal Material scheme to
+the same charcoal/warm-white/coral palette. Since every page already used
+semantic tokens (`bg-primary`, `text-on-surface-variant`, etc.) rather than
+hardcoded colors, this took one file, not a rewrite of every page — only a
+handful of literal hex leftovers (`BalanceCard`'s gradient, three Stripe
+Elements inline style configs) needed a manual fix since those can't read
+CSS variables.
 
 Untouched, since none of it is page content: `AuthContext`/`ToastContext`,
 `lib/api.ts`, `lib/auth.ts` (httpOnly cookie helpers), `lib/utils.ts`,
@@ -399,7 +403,7 @@ Money and bank-account payout endpoints.
 | 9 | `/dashboard`, `/transfer`, `/transactions` + `/transactions/[id]`, `/admin` | Done |
 | 10 | Landing/Welcome screen at `/` — introduces BridgePay before Login/Register, with "Get Started" (→ Register) and "Log in" (→ Login) | Done — redesigned with its own visual identity, not just a functional stub |
 | 11 | Dark mode toggle — needs a real theming pass first (see note below), not just a switch | Not started |
-| 12 | Polish/consistency pass — bring the rest of the app's visual style in line with the new `/` redesign; loading/empty states, error boundaries | Partially done — `/` is polished, the `(dashboard)` route group now has a real auth guard (redirects to `/login` if not signed in), and `/transfer`/`/payout` show a proper unverified-email banner instead of generic error text. The rest of the app still uses the original Material-style tokens |
+| 12 | Polish/consistency pass — bring the rest of the app's visual style in line with the new `/` redesign; loading/empty states, error boundaries | Done — retuned `globals.css`'s design tokens to the new charcoal/coral palette, which every page inherits automatically since they already use semantic tokens rather than hardcoded colors. The `(dashboard)` route group has a real auth guard, and `/transfer`/`/payout` show a proper unverified-email banner |
 
 **Nav responsiveness — done:** `BottomNav` (mobile) and `Sidebar`
 (tablet/desktop, `md` breakpoint and up) now share one canonical item
