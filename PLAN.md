@@ -8,9 +8,9 @@ OAuth are all built and tested. See
 [BridgePay-Backend's README](https://github.com/Mark-Musyoka/BridgePay-Backend/blob/main/README.md)
 for verified endpoint behavior. The frontend rebuild targeted a launch
 by Friday, September 18, 2026; that date has passed, but the rebuild
-itself is now complete — every page in section 3 is built. See section
-6 for what's still open (mainly backend-dependent `/profile`
-sub-features, dark mode, and a visual-consistency pass).
+itself is now complete — every page in section 3 is built, wired to the
+real backend endpoints, themed consistently, and dark mode is in. Every
+item in section 6's checklist is done.
 
 ## 1. What this is
 The client for BridgePay — a payments platform (PayPal-style) built by
@@ -402,7 +402,7 @@ Money and bank-account payout endpoints.
 | 8 | `/notifications` page + unread-count badge on `/dashboard` | Done |
 | 9 | `/dashboard`, `/transfer`, `/transactions` + `/transactions/[id]`, `/admin` | Done |
 | 10 | Landing/Welcome screen at `/` — introduces BridgePay before Login/Register, with "Get Started" (→ Register) and "Log in" (→ Login) | Done — redesigned with its own visual identity, not just a functional stub |
-| 11 | Dark mode toggle — needs a real theming pass first (see note below), not just a switch | Not started |
+| 11 | Dark mode toggle | Done — sun/moon toggle in the `Header`; see the dark mode note below |
 | 12 | Polish/consistency pass — bring the rest of the app's visual style in line with the new `/` redesign; loading/empty states, error boundaries | Done — retuned `globals.css`'s design tokens to the new charcoal/coral palette, which every page inherits automatically since they already use semantic tokens rather than hardcoded colors. The `(dashboard)` route group has a real auth guard, and `/transfer`/`/payout` show a proper unverified-email banner |
 
 **Nav responsiveness — done:** `BottomNav` (mobile) and `Sidebar`
@@ -413,11 +413,31 @@ dead `/topup` link. `Header` stays visible at every breakpoint (offset
 past the sidebar's width on desktop) so the notification bell and
 profile link aren't lost when the sidebar takes over.
 
-**Dark mode — not started, needs scoping first.** The current
-components hardcode colors directly (`bg-slate-950`, `text-white`,
-etc.) rather than through theme-aware tokens, so a real toggle needs a
-pass to move those onto CSS variables / a theme provider first — it's
-a genuine feature, not a quick switch to bolt on.
+**Dark mode — done.** Because every page already used semantic tokens
+(`bg-primary`, `text-on-surface-variant`, ...) rather than hardcoded
+colors, dark mode is a second set of values for the same token names:
+`globals.css` overrides them under `:root[data-theme="dark"]`, so no
+page or component markup changed. How it works:
+
+- `lib/theme.ts` — `useTheme()` hook (`useSyncExternalStore` reading the
+  `data-theme` attribute on `<html>`); the choice is saved in
+  `localStorage` (`bp-theme`) and defaults to the OS preference.
+- `lib/theme-constants.ts` + an inline script in `app/layout.tsx`'s
+  `<head>` apply the theme *before first paint*, so dark-mode users never
+  see a light flash. (`<html>` carries `suppressHydrationWarning` because
+  that script sets an attribute the server didn't render.)
+- The toggle lives in `components/layout/Header.tsx`.
+- **`.tokens-light`** is a scope class that re-declares the light palette
+  for a subtree. It is used on the balance hero cards (their white/15
+  overlays assume a dark `primary`) and on the whole `(auth)` layout, so
+  the public auth pages keep the same light identity as `/` (which uses
+  its own hardcoded colors and does not follow the theme).
+- Stripe Elements render in an iframe and can't read CSS variables, so
+  `lib/stripeStyle.ts` passes literal colors per theme.
+- **When adding new UI:** use the semantic tokens and it will just work
+  in both themes. A hardcoded hex or `text-white` will not follow the
+  theme; if a surface must stay dark/light regardless, wrap it in
+  `tokens-light`.
 
 **Separate marketing domain — now exists.**
 [BridgePay-Web](https://github.com/Mark-Musyoka/BridgePay-Web) is

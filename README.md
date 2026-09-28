@@ -15,7 +15,7 @@ platform (auth, dashboard, transfers, transaction history). See
 | Layer | Choice |
 |---|---|
 | Framework | Next.js 16 (App Router) + React 19 + TypeScript |
-| Styling | Tailwind CSS v4 + Glassmorphism Dark Theme |
+| Styling | Tailwind CSS v4, semantic design tokens, light + dark themes (toggle in the header) |
 | State management | React Context (`AuthContext`, `ToastContext`) |
 | API client | Typed `fetch` wrapper (`lib/api.ts`) calling this app's own internal `/api/*` proxy routes, which read the httpOnly cookie server-side and forward to the FastAPI backend — never a client-side token. A few methods (`topUpAccount`, `flagTransaction`) currently throw a clear error rather than pretend to work, since the backend has no real endpoint behind them yet. |
 | Backend | [BridgePay-Backend](https://github.com/Mark-Musyoka/BridgePay-Backend) (FastAPI + Postgres) |
