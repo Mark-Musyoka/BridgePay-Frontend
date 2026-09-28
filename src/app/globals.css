@@ -71,6 +71,137 @@
   --on-surface: #14151a;
 }
 
+/* ─── Light token set, as a scope class ───────────────────────────────
+   Re-declares the light palette for a subtree, so it stays light even
+   when <html data-theme="dark">. Used by the (auth) layout (public
+   pages keep the same light identity as "/") and by the dark balance
+   hero cards, whose text/overlay colors assume `primary` is charcoal.
+   Keep in sync with the @theme block above. */
+.tokens-light {
+  --color-primary: #14151a;
+  --color-primary-container: #2a2b31;
+  --color-on-primary: #faf9f6;
+  --color-on-primary-container: #f3b8a8;
+  --color-primary-fixed: #fdeae3;
+  --color-primary-fixed-dim: #f9cfc0;
+  --color-on-primary-fixed: #14151a;
+  --color-on-primary-fixed-variant: #b5492e;
+
+  --color-secondary: #1a7a4c;
+  --color-secondary-container: #dceee1;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #145c39;
+  --color-secondary-fixed: #c9e9d5;
+  --color-secondary-fixed-dim: #a6dabd;
+  --color-on-secondary-fixed: #0d3b25;
+  --color-on-secondary-fixed-variant: #1f6b47;
+
+  --color-tertiary: #7a4a14;
+  --color-tertiary-container: #92591a;
+  --color-tertiary-fixed: #fbe4c8;
+  --color-tertiary-fixed-dim: #f3c98f;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-fixed: #4a2d0c;
+  --color-on-tertiary-fixed-variant: #6b4012;
+  --color-on-tertiary-container: #fba43b;
+
+  --color-background: #faf9f6;
+  --color-surface: #faf9f6;
+  --color-surface-dim: #e7e4dd;
+  --color-surface-bright: #faf9f6;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4f2ee;
+  --color-surface-container: #efede7;
+  --color-surface-container-high: #e9e6df;
+  --color-surface-container-highest: #e2dfd7;
+  --color-surface-variant: #e2dfd7;
+  --color-surface-tint: #14151a;
+
+  --color-on-surface: #14151a;
+  --color-on-surface-variant: #5c5d63;
+  --color-on-background: #14151a;
+  --color-inverse-surface: #2a2b31;
+  --color-inverse-on-surface: #f4f2ee;
+  --color-inverse-primary: #f9cfc0;
+
+  --color-outline: #8a8b90;
+  --color-outline-variant: #dad7cf;
+
+  --color-error: #d64545;
+  --color-error-container: #fbdcdc;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #7a1f1f;
+
+  color-scheme: light;
+}
+
+/* ─── Dark theme ──────────────────────────────────────────────────────
+   Toggled by <html data-theme="dark"> (see lib/theme.ts and the inline
+   init script in app/layout.tsx). Same token NAMES as the light theme,
+   only values change, so no component needs to know which theme is
+   active. Warm charcoal surfaces to match the light palette's warmth;
+   `primary` inverts to warm white so primary buttons stay high-contrast. */
+:root[data-theme="dark"] {
+  --background: #121317;
+  --on-surface: #ece9e2;
+
+  --color-primary: #faf9f6;
+  --color-primary-container: #e2dfd7;
+  --color-on-primary: #14151a;
+  --color-on-primary-container: #2a2b31;
+  --color-primary-fixed: #3d2a24;
+  --color-primary-fixed-dim: #5a3a30;
+  --color-on-primary-fixed: #faf9f6;
+  --color-on-primary-fixed-variant: #f3b8a8;
+
+  --color-secondary: #6fd4a0;
+  --color-secondary-container: #17382a;
+  --color-on-secondary: #06251a;
+  --color-on-secondary-container: #b9ecd0;
+  --color-secondary-fixed: #1f4a37;
+  --color-secondary-fixed-dim: #2b6349;
+  --color-on-secondary-fixed: #d5f3e3;
+  --color-on-secondary-fixed-variant: #a6dabd;
+
+  --color-tertiary: #f0b877;
+  --color-tertiary-container: #5c3a10;
+  --color-tertiary-fixed: #3f2a10;
+  --color-tertiary-fixed-dim: #5c3d17;
+  --color-on-tertiary: #3a2200;
+  --color-on-tertiary-fixed: #fbe4c8;
+  --color-on-tertiary-fixed-variant: #f3c98f;
+  --color-on-tertiary-container: #fbc987;
+
+  --color-background: #121317;
+  --color-surface: #121317;
+  --color-surface-dim: #0e0f12;
+  --color-surface-bright: #2c2d33;
+  --color-surface-container-lowest: #0d0e11;
+  --color-surface-container-low: #1a1b20;
+  --color-surface-container: #1e1f25;
+  --color-surface-container-high: #292a30;
+  --color-surface-container-highest: #34353b;
+  --color-surface-variant: #34353b;
+  --color-surface-tint: #f9cfc0;
+
+  --color-on-surface: #ece9e2;
+  --color-on-surface-variant: #b5b3ab;
+  --color-on-background: #ece9e2;
+  --color-inverse-surface: #ece9e2;
+  --color-inverse-on-surface: #2a2b31;
+  --color-inverse-primary: #14151a;
+
+  --color-outline: #8f8d86;
+  --color-outline-variant: #3a3b41;
+
+  --color-error: #f28b82;
+  --color-error-container: #5a1f1f;
+  --color-on-error: #3b0a0a;
+  --color-on-error-container: #ffd9d6;
+
+  color-scheme: dark;
+}
+
 body {
   background-color: var(--background);
   color: var(--on-surface);

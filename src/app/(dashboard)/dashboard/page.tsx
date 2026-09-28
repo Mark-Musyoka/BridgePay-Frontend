@@ -32,7 +32,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Balance card */}
-      <Card className="p-6 bg-primary text-on-primary border-none">
+      <Card className="tokens-light p-6 bg-primary text-on-primary border-none">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-on-primary/70 uppercase tracking-wider">
             {user ? `${user.full_name}'s balance` : 'Your balance'}

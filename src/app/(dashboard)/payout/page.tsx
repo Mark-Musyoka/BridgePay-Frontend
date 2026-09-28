@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
+import { useTheme } from '@/lib/theme';
+import { stripeCardStyle } from '@/lib/stripeStyle';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useAuth } from '@/context/AuthContext';
 import { api, ApiRequestError, getCountries } from '@/lib/api';
@@ -38,6 +40,7 @@ function StripeCardPayoutForm({
   onError: (message: string) => void;
 }) {
   const stripe = useStripe();
+  const { theme } = useTheme();
   const elements = useElements();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -76,7 +79,7 @@ function StripeCardPayoutForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="p-3.5 rounded-xl border border-outline-variant bg-surface-container-lowest">
         <CardElement
-          options={{ style: { base: { fontSize: '14px', color: '#14151a', '::placeholder': { color: '#5c5d63' } } } }}
+          options={{ style: stripeCardStyle(theme) }}
         />
       </div>
       <Button type="submit" isLoading={isSubmitting} disabled={!stripe} className="w-full">

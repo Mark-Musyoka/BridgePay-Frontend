@@ -5,7 +5,7 @@ import { WEB_URL } from '@/lib/api';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-surface text-on-surface">
+    <div className="tokens-light min-h-screen flex flex-col justify-between bg-surface text-on-surface">
       {/* Top Navbar */}
       <header className="p-6 flex items-center justify-between max-w-7xl mx-auto w-full">
         <Link href={WEB_URL} className="flex items-center gap-2.5 group">

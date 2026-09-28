@@ -23,7 +23,7 @@ export function BalanceCard() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-primary via-primary-container to-[#0a0a0d] p-6 sm:p-7 text-on-primary shadow-xl">
+    <div className="tokens-light relative overflow-hidden rounded-[24px] bg-gradient-to-br from-primary via-primary-container to-[#0a0a0d] p-6 sm:p-7 text-on-primary shadow-xl">
       {/* Subtle Ambient Graphic Backdrop */}
       <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-surface-tint/20 blur-2xl pointer-events-none" />
       <div className="absolute right-4 bottom-2 opacity-15 pointer-events-none">

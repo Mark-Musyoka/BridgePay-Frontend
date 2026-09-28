@@ -3,9 +3,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
+import { useTheme } from '@/lib/theme';
 
 export function Header() {
   const { showToast } = useToast();
+  const { theme, toggleTheme } = useTheme();
 
   const handleNotifications = () => {
     showToast('You have 1 unread notice: KES 4,500.00 received from Wanjiku Kamau.', 'info', 'Notifications');
@@ -31,6 +33,18 @@ export function Header() {
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
+            type="button"
+          >
+            <span className="material-symbols-outlined text-[22px]">
+              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+            </span>
+          </button>
+
           {/* Notifications Button */}
           <button
             onClick={handleNotifications}
