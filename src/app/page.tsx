@@ -93,37 +93,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Floating product card mockup */}
-        <section className="max-w-2xl mx-auto px-6 pb-20 sm:pb-28" aria-hidden="true">
-          <div className="rounded-[28px] bg-white border border-black/[0.06] shadow-[0_20px_60px_-15px_rgba(20,21,26,0.18)] p-6 sm:p-8 fade-in-card">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#14151A]/45 uppercase tracking-wider">Available balance</span>
-              <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#14151A]/[0.05] text-[#14151A]/60">KES</span>
-            </div>
-            <p className="mt-2 text-4xl sm:text-5xl font-extrabold font-mono tabular-nums tracking-tight">48,250.00</p>
-
-            <div className="mt-6 h-px bg-black/[0.06]" />
-
-            <div className="mt-5 flex flex-col gap-4">
-              {[
-                { label: 'M-Pesa deposit', sub: 'Just now', amount: '+ 12,000.00' },
-                { label: 'Sent to Wanjiru K.', sub: 'Yesterday', amount: '- 3,500.00' },
-                { label: 'Airtel Money deposit', sub: '2 days ago', amount: '+ 8,000.00' },
-              ].map((row) => (
-                <div key={row.label} className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">{row.label}</p>
-                    <p className="text-xs text-[#14151A]/45 mt-0.5">{row.sub}</p>
-                  </div>
-                  <span className={`text-sm font-semibold font-mono ${row.amount.startsWith('+') ? 'text-[#1A7A4C]' : 'text-[#14151A]/80'}`}>
-                    {row.amount}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Features */}
         <section className="border-t border-black/[0.06] bg-white">
           <div className="max-w-4xl mx-auto px-6 py-16 sm:py-20 grid sm:grid-cols-3 gap-10 sm:gap-8">
@@ -164,27 +133,6 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
-
-      <style jsx>{`
-        .fade-in-card {
-          opacity: 0;
-          transform: translateY(12px);
-          animation: card-in 0.55s ease-out 0.1s forwards;
-        }
-        @keyframes card-in {
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .fade-in-card {
-            animation: none;
-            opacity: 1;
-            transform: none;
-          }
-        }
-      `}</style>
     </div>
   );
 }
