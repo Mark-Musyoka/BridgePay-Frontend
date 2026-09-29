@@ -19,7 +19,7 @@ const FEATURES = [
   {
     icon: Icons.Shield,
     title: 'Bank-grade security',
-    body: 'Encrypted end to end, built and hosted for Kenyan rails.',
+    body: 'Encrypted end to end, wherever you send it.',
   },
 ];
 
@@ -65,7 +65,7 @@ export default function HomePage() {
         {/* Hero — centered, editorial */}
         <section className="max-w-2xl mx-auto px-6 pt-20 sm:pt-28 pb-16 text-center flex flex-col items-center">
           <span className="text-xs font-semibold tracking-[0.14em] uppercase text-[#FF6B4A]">
-            Built for how Kenya actually pays
+            Built for how you actually pay
           </span>
           <h1 className="mt-4 text-[2.75rem] sm:text-[3.25rem] font-extrabold tracking-tight leading-[1.05]">
             Every rail you use.
