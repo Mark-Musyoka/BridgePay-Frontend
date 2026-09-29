@@ -38,6 +38,8 @@ import type {
   PayoutListResponse,
   ApiError,
 } from "@/types";
+import { appFetch } from "@/lib/appFetch";
+import { isPreviewActive } from "@/lib/preview/session";
 
 // ─── Base URL ────────────────────────────────
 
@@ -239,6 +241,12 @@ export async function googleExchange(body: GoogleExchangeRequest): Promise<Login
  * Public, unauthenticated. Backs the registration country dropdown.
  */
 export async function getCountries(): Promise<Country[]> {
+  // Preview mode (see lib/preview/session.ts): no backend to ask. The
+  // dynamic import keeps the sample data out of every normal bundle.
+  if (isPreviewActive()) {
+    const { PREVIEW_COUNTRIES } = await import("@/lib/preview/handler");
+    return PREVIEW_COUNTRIES;
+  }
   return request<Country[]>("/api/v1/countries", { method: "GET" });
 }
 
@@ -529,7 +537,7 @@ export async function getAuditLogs(
 //     backend at all — this was always UI-only, per the comment on
 //     getAdminTransactions above.
 async function proxyFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
+  const res = await appFetch(path, {
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });

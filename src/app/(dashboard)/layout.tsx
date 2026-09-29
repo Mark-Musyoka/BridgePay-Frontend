@@ -3,12 +3,15 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { usePreviewRole } from '@/lib/preview/usePreviewRole';
+import { PreviewBanner } from '@/components/PreviewBanner';
 import { Header } from '@/components/layout/Header';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Sidebar } from '@/components/layout/Sidebar';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, logout } = useAuth();
+  const previewRole = usePreviewRole();
   const router = useRouter();
 
   useEffect(() => {
@@ -45,6 +48,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col relative w-full pt-16 pb-28 px-4 sm:px-6 md:pb-8 max-w-2xl lg:max-w-4xl mx-auto">
+          {previewRole && <PreviewBanner role={previewRole} onExit={logout} />}
           {children}
         </main>
 

@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Icons } from '@/components/ui/Icons';
 import { API_URL } from '@/lib/api';
+import { PREVIEW_ENABLED, type PreviewRole } from '@/lib/preview/session';
 
 // Local field styling matches the home page's editorial palette
 // (charcoal / warm white / coral) rather than the app's Material
@@ -17,13 +18,14 @@ const fieldClass =
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, demoLogin } = useAuth();
   const { showToast } = useToast();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [previewRole, setPreviewRole] = useState<PreviewRole | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +39,15 @@ export default function LoginPage() {
       setError('Incorrect email or password.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handlePreview = async (role: PreviewRole) => {
+    setPreviewRole(role);
+    try {
+      await demoLogin(role);
+    } finally {
+      setPreviewRole(null);
     }
   };
 
@@ -121,6 +132,31 @@ export default function LoginPage() {
           Register
         </Link>
       </p>
+
+      {/* Only rendered when NEXT_PUBLIC_PREVIEW_MODE=true (local dev, no backend). See lib/preview/session.ts. */}
+      {PREVIEW_ENABLED && (
+        <div className="mt-6 rounded-2xl border border-dashed border-black/15 bg-white/60 p-4">
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#FF6B4A]/15 text-[#B5492E]">
+            Preview mode
+          </span>
+          <p className="text-xs text-[#14151A]/60 mt-2.5 leading-relaxed">
+            No backend running? Explore the whole app with sample data. Nothing is saved or sent anywhere.
+          </p>
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            {(['user', 'admin'] as const).map((role) => (
+              <button
+                key={role}
+                type="button"
+                onClick={() => handlePreview(role)}
+                disabled={previewRole !== null}
+                className="py-2.5 rounded-full border border-black/10 bg-white text-[#14151A] font-semibold text-sm hover:bg-black/[0.03] active:scale-[0.98] transition-all disabled:opacity-60"
+              >
+                {previewRole === role ? 'Opening...' : `Sample ${role}`}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

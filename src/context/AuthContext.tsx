@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useRouter } from "next/navigation";
 import type { Account, User } from "@/types";
 import { register as apiRegister, ApiRequestError } from "@/lib/api";
+import { appFetch } from "@/lib/appFetch";
+import { PREVIEW_ENABLED, startPreviewSession, endPreviewSession } from "@/lib/preview/session";
 
 interface AuthContextType {
   user: User | null;
@@ -19,7 +21,8 @@ interface AuthContextType {
 }
 
 // Demo-mode credentials for the "1-click demo" login button. These are
-// NOT a fake auth bypass — demoLogin calls the real login() below with
+// NOT a fake auth bypass — (unless preview mode is on, see demoLogin)
+// demoLogin calls the real login() below with
 // these fixed credentials, going through the actual backend and getting
 // a real JWT. For the button to work, these accounts must genuinely
 // exist (registered + email-verified) in whatever database the app is
@@ -54,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     try {
-      const res = await fetch("/api/me");
+      const res = await appFetch("/api/me");
       if (res.ok) {
         setUser(await res.json());
       } else {
@@ -67,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshAccount = useCallback(async () => {
     try {
-      const res = await fetch("/api/account");
+      const res = await appFetch("/api/account");
       if (res.ok) {
         setAccount(await res.json());
       } else {
@@ -91,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refreshUser, refreshAccount]);
 
   const login = async (credentials: { email: string; password: string }) => {
+    endPreviewSession(); // a real login must never be hijacked by a leftover preview session
     setIsLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
@@ -112,6 +116,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const demoLogin = async (role: "user" | "admin") => {
+    // Preview mode (dev only, off unless NEXT_PUBLIC_PREVIEW_MODE=true):
+    // sign in against built-in sample data instead of a real backend.
+    // See lib/preview/session.ts.
+    if (PREVIEW_ENABLED) {
+      startPreviewSession(role);
+      setIsLoading(true);
+      try {
+        await Promise.allSettled([refreshUser(), refreshAccount()]);
+        router.push("/dashboard");
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
     await login(DEMO_CREDENTIALS[role]);
   };
 
@@ -132,6 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    endPreviewSession();
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     setUser(null);
     setAccount(null);
