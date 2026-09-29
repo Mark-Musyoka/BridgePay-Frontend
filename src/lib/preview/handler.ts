@@ -169,23 +169,6 @@ function buildStore(role: PreviewRole): Store {
   ];
   const allTransactions = [...transactions, ...others].sort((a, b) => b.created_at.localeCompare(a.created_at));
 
-  const note = (
-    type: Notification['type'],
-    title: string,
-    body: string,
-    createdAt: string,
-    isRead: boolean,
-  ): Notification => ({ id: fakeUuid(), type, title, body, is_read: isRead, created_at: createdAt });
-
-  const notifications: Notification[] = [
-    note('transfer_received', 'Money received', `You received ${kes(4500)} from ${WANJIKU.name}.`, daysAgo(2, 13, 5), false),
-    note('deposit_completed', 'Deposit completed', `${kes(12000)} from M-Pesa has been added to your wallet.`, daysAgo(0, 9, 16), false),
-    note('payout_sent', 'Payout sent', `${kes(5000)} was sent to your M-Pesa number.`, daysAgo(4, 16, 21), true),
-    note('security_alert', 'New sign-in', 'A new sign-in to your account was detected from Nairobi, Kenya.', daysAgo(6, 8, 0), true),
-    note('deposit_failed', 'Deposit failed', `Your ${kes(2000)} M-Pesa deposit did not go through.`, daysAgo(8, 12, 11), true),
-    note('account_update', 'Welcome to BridgePay', 'Your account is set up and your email is verified.', daysAgo(120, 10, 0), true),
-  ];
-
   const methods: PaymentMethod[] = [
     { id: fakeUuid(), provider: 'mpesa', type: 'mobile_wallet', masked_details: '+254 7•• ••• 821', is_default: true, created_at: daysAgo(90) },
     { id: fakeUuid(), provider: 'stripe', type: 'card', masked_details: 'Visa •••• 4242', is_default: false, created_at: daysAgo(45) },
@@ -217,7 +200,7 @@ function buildStore(role: PreviewRole): Store {
     audit('auth.login', 'Successful sign-in', PETER.accountId, 1, 7),
   ];
 
-  return { role, user, account, transactions, allTransactions, notifications, methods, payouts, auditLogs };
+  return { role, user, account, transactions, allTransactions, notifications: [], methods, payouts, auditLogs };
 }
 
 const stores: Partial<Record<PreviewRole, Store>> = {};
@@ -238,9 +221,7 @@ function pushTransaction(s: Store, t: Omit<Transaction, 'id' | 'currency' | 'cre
   return created;
 }
 
-function pushNotification(s: Store, type: Notification['type'], title: string, body: string) {
-  s.notifications.unshift({ id: fakeUuid(), type, title, body, is_read: false, created_at: new Date().toISOString() });
-}
+
 
 /** Kenyan mobile: 07XXXXXXXX / 01XXXXXXXX / +2547XXXXXXXX / 2547XXXXXXXX. Returns 254-prefixed digits, or null. */
 function normalizeKenyanPhone(raw: unknown): string | null {
@@ -284,7 +265,7 @@ export async function handlePreviewRequest(role: PreviewRole, input: string, ini
   if (path === '/api/users/change-password' && method === 'POST') {
     if (body.current_password !== SAMPLE_PASSWORD) return fail(400, 'Current password is incorrect');
     if (String(body.new_password ?? '').length < 8) return fail(422, 'New password must be at least 8 characters');
-    pushNotification(s, 'security_alert', 'Password changed', 'Your BridgePay password was changed.');
+
     return json({ success: true });
   }
 
@@ -312,7 +293,7 @@ export async function handlePreviewRequest(role: PreviewRole, input: string, ini
       from_user_email: s.user.email,
       to_user_email: to,
     });
-    pushNotification(s, 'transfer_sent', 'Transfer sent', `You sent ${kes(amount)} to ${to}.`);
+
     return json(created, 201);
   }
 
@@ -382,7 +363,7 @@ export async function handlePreviewRequest(role: PreviewRole, input: string, ini
         to_account_id: s.account.id,
         to_user_email: s.user.email,
       });
-      pushNotification(s, 'deposit_completed', 'Deposit completed', `${kes(amount)} from ${provider} has been added to your wallet.`);
+
     }, 4000);
 
     return json({ deposit_id: fakeUuid(), message: `Check your phone to approve the ${kes(amount)} ${provider} deposit.` }, 201);
@@ -426,7 +407,7 @@ export async function handlePreviewRequest(role: PreviewRole, input: string, ini
       completed_at: now,
     };
     s.payouts.unshift(payout);
-    pushNotification(s, 'payout_sent', 'Payout sent', `${kes(amount)} was sent via ${label}.`);
+
     return json(payout, 201);
   }
   if (path === '/api/payouts/stripe-card' || path === '/api/payouts/bank-account') return fail(501, NEEDS_REAL_BACKEND);
