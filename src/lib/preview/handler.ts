@@ -109,14 +109,6 @@ interface Store {
   auditLogs: AuditLog[];
 }
 
-const PEOPLE = [
-  { name: 'Wanjiku Kamau', email: 'wanjiku.kamau@example.com', accountId: fakeUuid() },
-  { name: 'Brian Otieno', email: 'brian.otieno@example.com', accountId: fakeUuid() },
-  { name: 'Amina Hassan', email: 'amina.hassan@example.com', accountId: fakeUuid() },
-  { name: 'Peter Mwangi', email: 'peter.mwangi@example.com', accountId: fakeUuid() },
-];
-const [WANJIKU, BRIAN, AMINA, PETER] = PEOPLE;
-
 function buildStore(role: PreviewRole): Store {
   const isAdmin = role === 'admin';
   const user: User = {
@@ -128,79 +120,19 @@ function buildStore(role: PreviewRole): Store {
     is_verified: true,
     created_at: daysAgo(120),
   };
-  const account: Account = { id: fakeUuid(), balance: '48250.00', currency: 'KES', created_at: daysAgo(120) };
+  const account: Account = { id: fakeUuid(), balance: '0.00', currency: 'KES', created_at: daysAgo(120) };
 
-  type TxInit = Pick<Transaction, 'type' | 'status' | 'amount' | 'reference_note' | 'created_at'> &
-    Partial<Pick<Transaction, 'from_account_id' | 'to_account_id' | 'from_user_email' | 'to_user_email'>>;
-  const tx = (t: TxInit): Transaction => ({
-    id: fakeUuid(),
-    from_account_id: null,
-    to_account_id: null,
-    currency: 'KES',
-    ...t,
-  });
-
-  const mine = account.id;
-  const transactions: Transaction[] = [
-    tx({ type: 'deposit', status: 'completed', amount: '12000.00', reference_note: 'M-Pesa deposit', created_at: daysAgo(0, 9, 15), to_account_id: mine, to_user_email: user.email }),
-    tx({ type: 'transfer', status: 'completed', amount: '3500.00', reference_note: 'Rent share', created_at: daysAgo(1, 18, 40), from_account_id: mine, to_account_id: BRIAN.accountId, from_user_email: user.email, to_user_email: BRIAN.email }),
-    tx({ type: 'transfer', status: 'completed', amount: '4500.00', reference_note: 'Thanks for lunch', created_at: daysAgo(2, 13, 5), from_account_id: WANJIKU.accountId, to_account_id: mine, from_user_email: WANJIKU.email, to_user_email: user.email }),
-    tx({ type: 'deposit', status: 'completed', amount: '8000.00', reference_note: 'Airtel Money deposit', created_at: daysAgo(3, 8, 30), to_account_id: mine, to_user_email: user.email }),
-    tx({ type: 'withdrawal', status: 'completed', amount: '5000.00', reference_note: 'M-Pesa payout', created_at: daysAgo(4, 16, 20), from_account_id: mine, from_user_email: user.email }),
-    tx({ type: 'transfer', status: 'pending', amount: '900.00', reference_note: 'Awaiting confirmation', created_at: daysAgo(5, 11, 0), from_account_id: mine, to_account_id: AMINA.accountId, from_user_email: user.email, to_user_email: AMINA.email }),
-    tx({ type: 'transfer', status: 'completed', amount: '2750.00', reference_note: null, created_at: daysAgo(7, 15, 45), from_account_id: PETER.accountId, to_account_id: mine, from_user_email: PETER.email, to_user_email: user.email }),
-    tx({ type: 'deposit', status: 'failed', amount: '2000.00', reference_note: 'M-Pesa deposit', created_at: daysAgo(8, 12, 10), to_account_id: mine, to_user_email: user.email }),
-    tx({ type: 'transfer', status: 'completed', amount: '650.00', reference_note: 'Airtime', created_at: daysAgo(9, 19, 30), from_account_id: mine, to_account_id: WANJIKU.accountId, from_user_email: user.email, to_user_email: WANJIKU.email }),
-    tx({ type: 'transfer', status: 'completed', amount: '10000.00', reference_note: 'Invoice #1042', created_at: daysAgo(11, 10, 15), from_account_id: BRIAN.accountId, to_account_id: mine, from_user_email: BRIAN.email, to_user_email: user.email }),
-    tx({ type: 'deposit', status: 'completed', amount: '15000.00', reference_note: 'M-Pesa deposit', created_at: daysAgo(13, 9, 0), to_account_id: mine, to_user_email: user.email }),
-    tx({ type: 'withdrawal', status: 'completed', amount: '6000.00', reference_note: 'Airtel Money payout', created_at: daysAgo(15, 17, 25), from_account_id: mine, from_user_email: user.email }),
-    tx({ type: 'transfer', status: 'completed', amount: '1850.00', reference_note: 'Groceries', created_at: daysAgo(18, 14, 0), from_account_id: mine, to_account_id: AMINA.accountId, from_user_email: user.email, to_user_email: AMINA.email }),
-    tx({ type: 'transfer', status: 'completed', amount: '3200.00', reference_note: null, created_at: daysAgo(21, 11, 35), from_account_id: PETER.accountId, to_account_id: mine, from_user_email: PETER.email, to_user_email: user.email }),
-  ];
-
-  // Platform-wide transactions between other people, for the admin view.
-  const others: Transaction[] = [
-    tx({ type: 'transfer', status: 'completed', amount: '7200.00', reference_note: 'Supplies', created_at: daysAgo(0, 11, 20), from_account_id: PETER.accountId, to_account_id: AMINA.accountId, from_user_email: PETER.email, to_user_email: AMINA.email }),
-    tx({ type: 'deposit', status: 'completed', amount: '25000.00', reference_note: 'M-Pesa deposit', created_at: daysAgo(1, 9, 45), to_account_id: BRIAN.accountId, to_user_email: BRIAN.email }),
-    tx({ type: 'transfer', status: 'failed', amount: '99999.00', reference_note: 'Insufficient funds', created_at: daysAgo(2, 20, 5), from_account_id: WANJIKU.accountId, to_account_id: PETER.accountId, from_user_email: WANJIKU.email, to_user_email: PETER.email }),
-    tx({ type: 'withdrawal', status: 'completed', amount: '18000.00', reference_note: 'Bank payout', created_at: daysAgo(3, 14, 50), from_account_id: AMINA.accountId, from_user_email: AMINA.email }),
-    tx({ type: 'transfer', status: 'completed', amount: '450.00', reference_note: null, created_at: daysAgo(6, 16, 15), from_account_id: BRIAN.accountId, to_account_id: WANJIKU.accountId, from_user_email: BRIAN.email, to_user_email: WANJIKU.email }),
-    tx({ type: 'deposit', status: 'pending', amount: '5000.00', reference_note: 'Airtel Money deposit', created_at: daysAgo(6, 18, 0), to_account_id: PETER.accountId, to_user_email: PETER.email }),
-  ];
-  const allTransactions = [...transactions, ...others].sort((a, b) => b.created_at.localeCompare(a.created_at));
-
-  const methods: PaymentMethod[] = [
-    { id: fakeUuid(), provider: 'mpesa', type: 'mobile_wallet', masked_details: '+254 7•• ••• 821', is_default: true, created_at: daysAgo(90) },
-    { id: fakeUuid(), provider: 'stripe', type: 'card', masked_details: 'Visa •••• 4242', is_default: false, created_at: daysAgo(45) },
-  ];
-
-  const payouts: Payout[] = [
-    { id: fakeUuid(), provider: 'mpesa', status: 'completed', recipient_email: user.email, amount: '5000.00', currency: 'KES', failure_reason: null, created_at: daysAgo(4, 16, 20), completed_at: daysAgo(4, 16, 21) },
-    { id: fakeUuid(), provider: 'airtel', status: 'completed', recipient_email: user.email, amount: '6000.00', currency: 'KES', failure_reason: null, created_at: daysAgo(15, 17, 25), completed_at: daysAgo(15, 17, 26) },
-  ];
-
-  const audit = (action: string, detail: string | null, userId: string | null, days: number, hour: number): AuditLog => ({
-    id: fakeUuid(),
-    user_id: userId,
-    action,
-    detail,
-    ip_address: `41.90.${Math.floor(Math.random() * 200) + 10}.${Math.floor(Math.random() * 200) + 10}`,
-    created_at: daysAgo(days, hour),
-  });
-  const auditLogs: AuditLog[] = [
-    audit('auth.login', 'Successful sign-in', user.id, 0, 8),
-    audit('transfer.create', `Transfer of ${kes(3500)} to ${BRIAN.email}`, user.id, 1, 18),
-    audit('deposit.completed', `M-Pesa deposit of ${kes(12000)}`, user.id, 0, 9),
-    audit('auth.password_reset_requested', 'Password reset email requested', null, 2, 21),
-    audit('payout.created', `M-Pesa payout of ${kes(5000)}`, user.id, 4, 16),
-    audit('auth.login_failed', 'Incorrect password', null, 5, 7),
-    audit('user.email_verified', 'Email verified', user.id, 120, 10),
-    audit('transfer.failed', 'Insufficient funds', WANJIKU.accountId, 2, 20),
-    audit('payout.created', `Bank payout of ${kes(18000)}`, AMINA.accountId, 3, 14),
-    audit('auth.login', 'Successful sign-in', PETER.accountId, 1, 7),
-  ];
-
-  return { role, user, account, transactions, allTransactions, notifications: [], methods, payouts, auditLogs };
+  return {
+    role,
+    user,
+    account,
+    transactions: [],
+    allTransactions: [],
+    notifications: [],
+    methods: [],
+    payouts: [],
+    auditLogs: [],
+  };
 }
 
 const stores: Partial<Record<PreviewRole, Store>> = {};
@@ -281,7 +213,6 @@ export async function handlePreviewRequest(role: PreviewRole, input: string, ini
     const balance = Number(s.account.balance);
     if (amount > balance) return fail(400, 'Insufficient funds');
 
-    const known = PEOPLE.find((p) => p.email.toLowerCase() === to.toLowerCase());
     setBalance(s, balance - amount);
     const created = pushTransaction(s, {
       type: 'transfer',
@@ -289,7 +220,7 @@ export async function handlePreviewRequest(role: PreviewRole, input: string, ini
       amount: amount.toFixed(2),
       reference_note: body.reference_note ? String(body.reference_note) : null,
       from_account_id: s.account.id,
-      to_account_id: known?.accountId ?? fakeUuid(),
+      to_account_id: fakeUuid(),
       from_user_email: s.user.email,
       to_user_email: to,
     });
