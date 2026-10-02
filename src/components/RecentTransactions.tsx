@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Transaction } from '@/types';
 import { formatCurrency, formatRelativeDate } from '@/lib/utils';
 
@@ -11,6 +12,8 @@ interface RecentTransactionsProps {
 }
 
 export function RecentTransactions({ transactions, isLoading = false }: RecentTransactionsProps) {
+  const router = useRouter();
+
   // Default sample items matching Stitch screen if list is empty
   const defaultItems = [
     {
@@ -84,12 +87,21 @@ export function RecentTransactions({ transactions, isLoading = false }: RecentTr
           transactions.slice(0, 4).map((tx) => {
             const isReceived = tx.type === 'transfer_received' || tx.type === 'topup';
             const isTill = tx.reference_note?.toLowerCase().includes('till');
+            const href = `/transactions/${tx.id}`;
 
             return (
-              <Link
+              <div
                 key={tx.id}
-                href={`/transactions/${tx.id}`}
-                className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-xs hover:shadow-md transition-all active:scale-[0.99] border border-surface-container/60"
+                role="button"
+                tabIndex={0}
+                onClick={() => router.push(href)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    router.push(href);
+                  }
+                }}
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-xs hover:shadow-md hover:bg-surface-container-high transition-all active:scale-[0.99] border border-surface-container/60 cursor-pointer"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div
@@ -145,57 +157,69 @@ export function RecentTransactions({ transactions, isLoading = false }: RecentTr
                     {isReceived ? 'Received' : 'Sent'}
                   </span>
                 </div>
-              </Link>
+              </div>
             );
           })
         ) : (
-          defaultItems.map((item) => (
-            <Link
-              key={item.id}
-              href="/transactions"
-              className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-xs hover:shadow-md transition-all active:scale-[0.99] border border-surface-container/60"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div
-                  className={`w-11 h-11 rounded-full ${item.iconBg} flex items-center justify-center shrink-0`}
-                >
-                  <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
-                </div>
+          defaultItems.map((item) => {
+            const href = `/transactions/${item.id}`;
+            return (
+              <div
+                key={item.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => router.push(href)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    router.push(href);
+                  }
+                }}
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-xs hover:shadow-md hover:bg-surface-container-high transition-all active:scale-[0.99] border border-surface-container/60 cursor-pointer"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className={`w-11 h-11 rounded-full ${item.iconBg} flex items-center justify-center shrink-0`}
+                  >
+                    <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
+                  </div>
 
-                <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-semibold text-on-surface truncate">
-                    {item.name}
-                  </span>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-xs text-on-surface-variant">{item.time}</span>
-                    <span className="w-1 h-1 rounded-full bg-outline-variant" />
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">
-                      {item.tag}
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-on-surface truncate">
+                      {item.name}
                     </span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="text-xs text-on-surface-variant">{item.time}</span>
+                      <span className="w-1 h-1 rounded-full bg-outline-variant" />
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">
+                        {item.tag}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col items-end shrink-0 pl-2">
-                <span
-                  className={`text-sm font-extrabold tabular-nums ${
-                    item.isCredit ? 'text-secondary' : 'text-on-surface'
-                  }`}
-                >
-                  {item.isCredit ? '+' : '-'}KES {item.amount.toLocaleString()}.00
-                </span>
-                <span
-                  className={`text-[10px] font-medium ${
-                    item.isCredit ? 'text-secondary' : 'text-on-surface-variant'
-                  }`}
-                >
-                  {item.statusLabel}
-                </span>
+                <div className="flex flex-col items-end shrink-0 pl-2">
+                  <span
+                    className={`text-sm font-extrabold tabular-nums ${
+                      item.isCredit ? 'text-secondary' : 'text-on-surface'
+                    }`}
+                  >
+                    {item.isCredit ? '+' : '-'}KES {item.amount.toLocaleString()}.00
+                  </span>
+                  <span
+                    className={`text-[10px] font-medium ${
+                      item.isCredit ? 'text-secondary' : 'text-on-surface-variant'
+                    }`}
+                  >
+                    {item.statusLabel}
+                  </span>
+                </div>
               </div>
-            </Link>
-          ))
+            );
+          })
         )}
       </div>
     </div>
   );
 }
+

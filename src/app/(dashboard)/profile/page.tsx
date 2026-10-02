@@ -396,7 +396,7 @@ export default function ProfilePage() {
                 <button
                   onClick={() => handleRemoveMethod(m.id)}
                   disabled={removingId === m.id}
-                  className="p-1.5 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-colors shrink-0 disabled:opacity-50"
+                  className="p-1.5 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-colors shrink-0 disabled:opacity-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-error/40"
                   aria-label={`Remove ${m.masked_details}`}
                 >
                   <Icons.Close className="w-4 h-4" />

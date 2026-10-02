@@ -95,10 +95,10 @@ export default function NotificationsPage() {
               <button
                 key={n.id}
                 onClick={() => !n.is_read && handleMarkRead(n.id)}
-                className={`w-full text-left flex items-start gap-3 p-4 rounded-2xl border transition-colors ${
+                className={`w-full text-left flex items-start gap-3 p-4 rounded-2xl border transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40 ${
                   n.is_read
-                    ? 'bg-surface-container-lowest border-outline-variant/60'
-                    : 'bg-surface-container-low border-outline-variant hover:border-outline'
+                    ? 'bg-surface-container-lowest border-outline-variant/60 hover:bg-surface-container-high'
+                    : 'bg-surface-container-low border-outline-variant hover:border-outline hover:bg-surface-container-high'
                 }`}
               >
                 <div className="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
