@@ -244,3 +244,17 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Print utilities — receipt generation */
+.print-only {
+  display: none;
+}
+
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
