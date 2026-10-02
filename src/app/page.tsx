@@ -113,13 +113,26 @@ export default function HomePage() {
 
         {/* Trust strip */}
         <section className="max-w-4xl mx-auto px-6 py-12 sm:py-14 text-center">
-          <p className="text-xs font-semibold text-[#14151A]/35 mb-5">Works with</p>
-          <div className="flex flex-wrap justify-center gap-2.5">
-            {['M-Pesa', 'Airtel Money', 'Visa', 'Mastercard', 'Bank transfer'].map((rail) => (
-              <span key={rail} className="px-3.5 py-1.5 rounded-full bg-black/[0.04] text-sm font-medium text-[#14151A]/70">
-                {rail}
-              </span>
-            ))}
+          <p className="text-xs font-semibold text-[#14151A]/35 mb-5 tracking-wider uppercase">Works with</p>
+          <div className="flex flex-wrap justify-center items-center gap-3">
+            {[
+              { name: 'M-Pesa', icon: Icons.MPesa },
+              { name: 'Airtel Money', icon: Icons.Airtel },
+              { name: 'Visa', icon: Icons.Visa },
+              { name: 'Mastercard', icon: Icons.Mastercard },
+              { name: 'Bank transfer', icon: Icons.Bank },
+            ].map((rail) => {
+              const Icon = rail.icon;
+              return (
+                <div
+                  key={rail.name}
+                  className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white border border-black/[0.08] shadow-xs hover:shadow-sm transition-all"
+                >
+                  <Icon className="w-6 h-6 shrink-0" />
+                  <span className="text-sm font-semibold text-[#14151A]/80">{rail.name}</span>
+                </div>
+              );
+            })}
           </div>
         </section>
       </main>

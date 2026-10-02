@@ -20,9 +20,9 @@ const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 type Method = 'card' | 'mpesa' | 'airtel';
 
 const METHODS: { id: Method; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: 'card', label: 'Card', icon: Icons.CreditCard },
-  { id: 'mpesa', label: 'M-Pesa', icon: Icons.Wallet },
-  { id: 'airtel', label: 'Airtel Money', icon: Icons.Wallet },
+  { id: 'card', label: 'Card', icon: Icons.Visa },
+  { id: 'mpesa', label: 'M-Pesa', icon: Icons.MPesa },
+  { id: 'airtel', label: 'Airtel Money', icon: Icons.Airtel },
 ];
 
 function StripeCardForm({
@@ -256,7 +256,7 @@ export default function DepositPage() {
               required
             />
             <Input
-              label="Amount (KES)"
+              label="Amount (USD)"
               type="number"
               step="0.01"
               min="0.01"

@@ -136,4 +136,49 @@ export const Icons = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
     </svg>
   ),
+  MPesa: ({ className = 'w-6 h-6', ...props }: IconProps) => (
+    <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <rect width="32" height="32" rx="6" fill="#00A859" />
+      <path fillRule="evenodd" clipRule="evenodd" d="M7 23V9H10.5L14 16.5L17.5 9H21V23H18V13.5L14.7 19H13.3L10 13.5V23H7Z" fill="white" />
+      <path d="M22 10.5H25.5C27 10.5 28 11.5 28 12.8C28 14.1 27 15.1 25.5 15.1H22V10.5Z" fill="#E11C24" />
+      <path d="M22 15.1H26C27.5 15.1 28.5 16.1 28.5 17.5C28.5 18.9 27.5 19.9 26 19.9H22V15.1Z" fill="#E11C24" />
+      <path d="M22 9V23" stroke="white" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  ),
+  Airtel: ({ className = 'w-6 h-6', ...props }: IconProps) => (
+    <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <rect width="32" height="32" rx="6" fill="#E40000" />
+      <path d="M9 22.5C9 16.5 13.5 11 19.5 11C22 11 24 12 24.5 14C23.5 13 21.5 13 19.5 14.5C16.5 16.5 15.5 19.5 16.5 22.5" stroke="white" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="21" cy="20.5" r="2.5" fill="white" />
+    </svg>
+  ),
+  Visa: ({ className = 'w-6 h-6', ...props }: IconProps) => (
+    <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <rect width="32" height="32" rx="6" fill="#1A1F71" />
+      <path d="M12.8 20L14.7 12H17.2L15.3 20H12.8Z" fill="white" />
+      <path d="M22.5 12.2C22 12 21.2 11.8 20.2 11.8C17.7 11.8 16 13.1 16 15C16 16.4 17.3 17.1 18.2 17.6C19.2 18.1 19.5 18.4 19.5 18.9C19.5 19.6 18.7 19.9 17.9 19.9C16.8 19.9 16.2 19.7 15.4 19.3L15 19.1L14.6 21.1C15.2 21.4 16.4 21.6 17.7 21.6C20.4 21.6 22.1 20.3 22.1 18.2C22.1 16.3 20.4 15.5 19.3 14.9C18.5 14.5 18.1 14.2 18.1 13.7C18.1 13.2 18.7 12.8 19.7 12.8C20.5 12.8 21.2 13 21.7 13.2L22.1 13.4L22.5 12.2Z" fill="white" />
+      <path d="M25.7 12H23.8C23.2 12 22.7 12.2 22.5 12.8L19.2 20H21.8L22.3 18.5H25.5L25.8 20H28.1L26.1 12H25.7ZM23 16.6L24.3 13.5L25 16.6H23Z" fill="white" />
+      <path d="M11.6 12L9 20H11.5L13.1 12H11.6Z" fill="#F7B600" />
+      <path d="M9.5 12H6.9L6.8 12.2C9.3 12.8 11.3 14.3 12.1 16.3L11.2 12H9.5Z" fill="white" />
+    </svg>
+  ),
+  Mastercard: ({ className = 'w-6 h-6', ...props }: IconProps) => (
+    <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <rect width="32" height="32" rx="6" fill="#22252A" />
+      <circle cx="12.5" cy="16" r="6.5" fill="#EB001B" />
+      <circle cx="19.5" cy="16" r="6.5" fill="#F79E1B" />
+      <path d="M16 11.2C17.3 12.4 18.1 14.1 18.1 16C18.1 17.9 17.3 19.6 16 20.8C14.7 19.6 13.9 17.9 13.9 16C13.9 14.1 14.7 12.4 16 11.2Z" fill="#FF5F00" />
+    </svg>
+  ),
+  Bank: ({ className = 'w-6 h-6', ...props }: IconProps) => (
+    <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <rect width="32" height="32" rx="6" fill="#0F172A" />
+      <path d="M16 8L7 13V15H25V13L16 8Z" fill="#38BDF8" />
+      <rect x="9" y="16" width="2.5" height="6" fill="white" />
+      <rect x="13.5" y="16" width="2.5" height="6" fill="white" />
+      <rect x="18" y="16" width="2.5" height="6" fill="white" />
+      <rect x="22.5" y="16" width="2.5" height="6" fill="white" />
+      <rect x="7" y="23" width="18" height="2" rx="0.5" fill="#38BDF8" />
+    </svg>
+  ),
 };
