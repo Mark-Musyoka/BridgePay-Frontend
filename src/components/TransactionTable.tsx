@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Transaction } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { Icons } from '@/components/ui/Icons';
@@ -14,6 +15,8 @@ interface TransactionTableProps {
 }
 
 export function TransactionTable({ transactions, isLoading = false }: TransactionTableProps) {
+  const router = useRouter();
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface-container-low shadow-sm">
       <table className="w-full text-left border-collapse">
@@ -22,7 +25,7 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
             <th className="py-3.5 px-4">Type / Counterparty</th>
             <th className="py-3.5 px-4">Transaction ID</th>
             <th className="py-3.5 px-4">Reference / Note</th>
-            <th className="py-3.5 px-4">Date & Time</th>
+            <th className="py-3.5 px-4">Date &amp; Time</th>
             <th className="py-3.5 px-4">Status</th>
             <th className="py-3.5 px-4 text-right">Amount</th>
             <th className="py-3.5 px-4 text-center">Action</th>
@@ -51,9 +54,22 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
             transactions.map((tx) => {
               const isSend = tx.type === 'transfer_sent';
               const isTopup = tx.type === 'topup' || tx.type === 'deposit';
+              const detailHref = `/transactions/${tx.id}`;
 
               return (
-                <tr key={tx.id} className="hover:bg-surface-container transition-colors group">
+                <tr
+                  key={tx.id}
+                  className="hover:bg-surface-container-high transition-colors group cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push(detailHref)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      router.push(detailHref);
+                    }
+                  }}
+                >
                   {/* Type / Counterparty */}
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
@@ -120,9 +136,10 @@ export function TransactionTable({ transactions, isLoading = false }: Transactio
                   {/* Action Link */}
                   <td className="py-4 px-4 text-center">
                     <Link
-                      href={`/transactions/${tx.id}`}
+                      href={detailHref}
                       className="inline-flex items-center justify-center p-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors"
                       title="View Receipt"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <Icons.ExternalLink className="w-4 h-4" />
                     </Link>
