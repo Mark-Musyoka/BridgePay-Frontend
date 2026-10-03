@@ -256,7 +256,7 @@ export default function DepositPage() {
               required
             />
             <Input
-              label="Amount (USD)"
+              label="Amount (KES)"
               type="number"
               step="0.01"
               min="0.01"
