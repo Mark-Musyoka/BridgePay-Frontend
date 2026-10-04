@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { api, ApiRequestError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -30,6 +31,7 @@ function Forbidden() {
 }
 
 export default function AdminPage() {
+  const router = useRouter();
   const [tab, setTab] = useState<'transactions' | 'audit'>('transactions');
   const [forbidden, setForbidden] = useState(false);
 
@@ -117,7 +119,19 @@ export default function AdminPage() {
               <tbody>
                 {!transactions && Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} cols={5} />)}
                 {transactions?.items.map((t) => (
-                  <tr key={t.id} className="border-b border-outline-variant last:border-0">
+                  <tr
+                    key={t.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => router.push(`/transactions/${t.id}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        router.push(`/transactions/${t.id}`);
+                      }
+                    }}
+                    className="border-b border-outline-variant last:border-0 cursor-pointer hover:bg-surface-container-high focus:outline-none focus:bg-surface-container-high transition-colors"
+                  >
                     <td className="py-3 px-4 text-on-surface-variant">{truncateHash(t.id, 6, 4)}</td>
                     <td className="py-3 px-4 capitalize text-on-surface">{t.type.replace(/_/g, ' ')}</td>
                     <td className="py-3 px-4 text-on-surface">{formatCurrency(t.amount, t.currency)}</td>
