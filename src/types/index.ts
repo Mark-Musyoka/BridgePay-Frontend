@@ -345,6 +345,10 @@ export interface Notification {
   title: string;
   body: string;
   is_read: boolean;
+  /** Set for transfer/deposit/payout-related notifications; null for
+   * security_alert, account_update, and failed deposit/payout
+   * notifications (nothing was ever recorded for those). */
+  transaction_id: string | null;
   created_at: string;
 }
 

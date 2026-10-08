@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { api, ApiRequestError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -21,6 +22,7 @@ const TYPE_ICON: Record<NotificationType, React.ComponentType<{ className?: stri
 };
 
 export default function NotificationsPage() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
@@ -41,6 +43,11 @@ export default function NotificationsPage() {
     } catch {
       load(); // out of sync with the server — just refetch
     }
+  };
+
+  const handleNotificationClick = (n: Notification) => {
+    if (!n.is_read) handleMarkRead(n.id);
+    if (n.transaction_id) router.push(`/transactions/${n.transaction_id}`);
   };
 
   const handleMarkAllRead = async () => {
@@ -94,7 +101,7 @@ export default function NotificationsPage() {
             return (
               <button
                 key={n.id}
-                onClick={() => !n.is_read && handleMarkRead(n.id)}
+                onClick={() => handleNotificationClick(n)}
                 className={`w-full text-left flex items-start gap-3 p-4 rounded-2xl border transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40 ${
                   n.is_read
                     ? 'bg-surface-container-lowest border-outline-variant/60 hover:bg-surface-container-high'
@@ -109,6 +116,7 @@ export default function NotificationsPage() {
                   <p className="text-xs text-on-surface-variant mt-1">{formatDate(n.created_at)}</p>
                 </div>
                 {!n.is_read && <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5" />}
+                {n.transaction_id && <Icons.ChevronRight className="w-4 h-4 text-on-surface-variant/50 shrink-0 mt-1" />}
               </button>
             );
           })}
